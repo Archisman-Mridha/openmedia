@@ -1,0 +1,22 @@
+{
+	"compileOnSave": false,
+	"compilerOptions": {
+		"declaration": false,
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
+		"importHelpers": true,
+		"lib": ["es2020", "dom"],
+		"module": "esnext",
+		"moduleResolution": "node",
+		"paths": {
+			"@openmedia/backend/*": ["./backend/src/*"]
+		},
+		"rootDir": ".",
+		"skipDefaultLibCheck": true,
+		"skipLibCheck": true,
+		"sourceMap": true,
+		"strictPropertyInitialization": false,
+		"target": "es2015"
+	},
+	"exclude": ["node_modules"]
+}

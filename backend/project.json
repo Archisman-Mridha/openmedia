@@ -1,0 +1,65 @@
+{
+	"$schema": "../node_modules/nx/schemas/project-schema.json",
+	"name": "backend",
+	"projectType": "application",
+	"sourceRoot": "backend/src",
+	"tags": [],
+	"targets": {
+		"build": {
+			"configurations": {
+				"development": {
+					"args": ["--node-env=development"]
+				}
+			},
+			"executor": "nx:run-commands",
+			"options": {
+				"args": ["--node-env=production"],
+				"command": "rspack build",
+				"cwd": "backend"
+			}
+		},
+		"copy-workspace-modules": {
+			"cache": true,
+			"dependsOn": ["build"],
+			"executor": "@nx/js:copy-workspace-modules",
+			"options": {
+				"buildTarget": "build"
+			},
+			"outputs": ["{workspaceRoot}/dist/backend/workspace_modules"]
+		},
+		"prune": {
+			"dependsOn": ["prune-lockfile", "copy-workspace-modules"],
+			"executor": "nx:noop"
+		},
+		"prune-lockfile": {
+			"cache": true,
+			"dependsOn": ["build"],
+			"executor": "@nx/js:prune-lockfile",
+			"options": {
+				"buildTarget": "build"
+			},
+			"outputs": [
+				"{workspaceRoot}/dist/backendpackage.json",
+				"{workspaceRoot}/dist/backend/bun.lock"
+			]
+		},
+		"serve": {
+			"configurations": {
+				"development": {
+					"buildTarget": "backend:build:development"
+				},
+				"production": {
+					"buildTarget": "backend:build:production"
+				}
+			},
+			"continuous": true,
+			"defaultConfiguration": "development",
+			"dependsOn": ["build"],
+			"executor": "@nx/js:node",
+			"options": {
+				"buildTarget": "backend:build",
+				"runBuildTargetDependencies": false
+			}
+		}
+	}
+}

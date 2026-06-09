@@ -1,0 +1,58 @@
+repos:
+  - repo: https://github.com/biomejs/pre-commit
+    rev: v2.4.16
+    hooks:
+      - id: biome-check
+        name: Format and lint JavaScript, TypeScript, GraphQL and JSON files.
+
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.14.0
+    hooks:
+      - id: hadolint
+        name: Lint Dockerfiles.
+
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.106.0
+    hooks:
+      - id: terraform_fmt
+        name: Format Terraform and HCL files.
+        exclude: "^(?!infrastructure/terraform/)"
+      - id: terraform_tflint
+        exclude: "^(?!infrastructure/terraform/)"
+        name: Lint Terraform and HCL files.
+
+  - repo: https://github.com/google/go-jsonnet
+    rev: v0.22.0
+    hooks:
+      - id: jsonnet-format
+        name: Format Jsonnet files.
+        language: system
+      - id: jsonnet-lint
+        name: Lint Jsonnet files.
+        language: system
+        args:
+          - "-J"
+          - "infrastructure/kubernetes/manifests/vendor"
+          - "-J"
+          - "infrastructure/kubernetes/manifests/lib"
+
+  - repo: https://github.com/google/yamlfmt
+    rev: v0.21.0
+    hooks:
+      - id: yamlfmt
+        name: Format YAML files.
+        language: system
+
+  - repo: local
+    hooks:
+      - id: nixfmt
+        name: Format Nix files.
+        entry: nixfmt
+        language: system
+        files: "\\.nix$"
+
+      - id: statix
+        name: Lint Nix files.
+        entry: statix check
+        language: system
+        files: "\\.nix$"

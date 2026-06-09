@@ -1,0 +1,27 @@
+{
+  // You can view all the default presets here : https://docs.renovatebot.com/presets-default/.
+  extends: [
+    "config:recommended",
+
+    // Helps keep the $schema version in-sync and up-to-date within the biome.json configuration
+    // files.
+    "customManagers:biomeVersions"
+  ],
+
+  /*
+    Renovate is based around the concept of package managers. These range from traditional package
+    managers like npm, Bundler and Composer through to less traditional concepts like CircleCI or
+    Travis config files.
+
+    The goal of Renovate is to detect and maintain all third-party dependencies in your
+    repositories, through the use of managers.
+  */
+  enabledManagers: [
+    "javascript",
+    "dockerfile",
+    "github-actions",
+    "terraform",
+    "jsonnet-bundler",
+    "nix"
+  ]
+}

@@ -1,0 +1,50 @@
+{
+	"$schema": "./node_modules/nx/schemas/nx-schema.json",
+	"analytics": true,
+	"namedInputs": {
+		"default": ["{projectRoot}/**/*", "sharedGlobals"],
+		"production": [
+			"default",
+			"!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
+			"!{projectRoot}/tsconfig.spec.json"
+		],
+		"sharedGlobals": []
+	},
+	"plugins": [
+		{
+			"options": {
+				"ciTargetName": "test-ci",
+				"testMode": "watch",
+				"testTargetName": "test"
+			},
+			"plugin": "@nx/vitest"
+		},
+		{
+			"options": {
+				"buildTarget": {
+					"args": [
+						"-f {projectRoot}/Dockerfile",
+						"--tag ghcr.io/archisman-mridha/openmedia-{projectName}:dev"
+					],
+					"cwd": "{workspaceRoot}",
+					"name": "docker:build"
+				},
+				"runTarget": "docker:run"
+			},
+			"plugin": "@nx/docker"
+		}
+	],
+	"targetDefaults": {
+		"@nx/js:swc": {
+			"cache": true,
+			"dependsOn": ["^build"],
+			"inputs": ["production", "^production"]
+		},
+		"build": {
+			"cache": true
+		},
+		"test": {
+			"cache": true
+		}
+	}
+}

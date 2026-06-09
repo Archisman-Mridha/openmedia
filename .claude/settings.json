@@ -1,0 +1,15 @@
+{
+	"enabledPlugins": {
+		"claude-mem@thedotmack": true,
+		"context-mode@context-mode": true,
+		"nx@nx-claude-plugins": true
+	},
+	"extraKnownMarketplaces": {
+		"nx-claude-plugins": {
+			"source": {
+				"repo": "nrwl/nx-ai-agents-config",
+				"source": "github"
+			}
+		}
+	}
+}

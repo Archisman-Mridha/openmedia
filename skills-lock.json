@@ -1,0 +1,65 @@
+{
+	"skills": {
+		"apollo-server": {
+			"computedHash": "48e0099a2515d5c3b905f5c3891e8d5291a3466d194524b5a8b49e56e0689533",
+			"source": "apollographql/skills",
+			"sourceType": "github"
+		},
+		"graphql-schema": {
+			"computedHash": "92b5f143d4d7f80a2fd5fe5421bccaa0ec35b1f9f4acdf3f71a019191cf3c4a4",
+			"source": "apollographql/skills",
+			"sourceType": "github"
+		},
+		"link-workspace-packages": {
+			"computedHash": "28a62513af1293c1ca064203a3d6e4dcdbd08f5be6e5ce9a16acc6176bef2ca4",
+			"source": "nrwl/nx-ai-agents-config",
+			"sourceType": "github"
+		},
+		"nx-generate": {
+			"computedHash": "7f465f7c7b023762c4517227a5ac9823f54d49fb5b492c61693d841a1a0ee355",
+			"source": "nrwl/nx-ai-agents-config",
+			"sourceType": "github"
+		},
+		"nx-import": {
+			"computedHash": "11ada1b25edcf0164a76c310e989119c3e0431cae3b7283a6f10d392df9da200",
+			"source": "nrwl/nx-ai-agents-config",
+			"sourceType": "github"
+		},
+		"nx-plugins": {
+			"computedHash": "e93d10328f589667d6a7cc71d134c96b3c28ab4a1468eaec7bc29420c950e4e2",
+			"source": "nrwl/nx-ai-agents-config",
+			"sourceType": "github"
+		},
+		"nx-run-tasks": {
+			"computedHash": "e42dec15f588268887d88d606187b0fab9cbb3f90fd4ce41d66d2faffc9295c4",
+			"source": "nrwl/nx-ai-agents-config",
+			"sourceType": "github"
+		},
+		"nx-workspace": {
+			"computedHash": "32b7b72c54c6644e97ac8c8491e3cfa936afa6f8a86798214258d631367b4add",
+			"source": "nrwl/nx-ai-agents-config",
+			"sourceType": "github"
+		},
+		"redis-development": {
+			"computedHash": "d27174128aebe583d5ca15747389c84e286daed589bfa2b99847392a012719b5",
+			"source": "redis/agent-skills",
+			"sourceType": "github"
+		},
+		"rspack-best-practices": {
+			"computedHash": "1fa1f81e135ff913271a538f995aa378649b22775a588a573c861cf7f507ebd5",
+			"source": "rstackjs/agent-skills",
+			"sourceType": "github"
+		},
+		"skill-creator": {
+			"computedHash": "44def51b2bb66c2eafe75e8f29ae8ace901531b4eb47cffd1fb7cf3109631092",
+			"source": "apollographql/skills",
+			"sourceType": "github"
+		},
+		"supabase-postgres-best-practices": {
+			"computedHash": "9c87c315aed143ee3b34bec8117100f5035e0df09e6b23e1ecc772cff434c9ad",
+			"source": "supabase/agent-skills",
+			"sourceType": "github"
+		}
+	},
+	"version": 1
+}

@@ -1,0 +1,22 @@
+{
+	// A name for the dev container displayed in the UI.
+	"name": "OpenMedia development environment",
+
+	"dockerComposeFile": "compose.yaml",
+	"service": "devcontainer",
+	"postCreateCommand": "bash -c \"direnv allow /workspace; direnv exec /workspace sleep 1\"",
+
+	// Tells devcontainer.json supporting services / tools whether they should run
+	// /bin/sh -c "while sleep 1000; do :; done" when starting the container instead of the
+	// container’s default command (since the container can shut down if the default command fails).
+	// Set to false if the default command must run for the container to function properly.
+	// Defaults to true for when using an image Dockerfile and false when referencing a Docker
+	// Compose file.
+	"overrideCommand": false,
+
+	// Sets the default path that devcontainer.json supporting services / tools should open when
+	// connecting to the container (which is often the path to a volume mount where the source code
+	// can be found in the container).
+	// Defaults to "/".
+	"workspaceFolder": "/workspace"
+}

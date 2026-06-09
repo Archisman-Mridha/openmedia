@@ -1,0 +1,96 @@
+# apiVersion: kops.k8s.io/v1alpha2
+# kind: InstanceGroup
+# metadata:
+#   name: bastions
+#   labels:
+#     kops.k8s.io/cluster: staging.openmedia
+# spec:
+#   associatePublicIp: true
+#   image: ami-0dbf31804108c74e5
+#   machineType: t4g.micro
+#   maxSize: 1
+#   minSize: 1
+#   role: Bastion
+#   subnets:
+#     - public-a
+
+apiVersion: kops.k8s.io/v1alpha2
+kind: InstanceGroup
+metadata:
+  name: master-a
+  labels:
+    kops.k8s.io/cluster: staging.openmedia
+spec:
+  role: ControlPlane
+  minSize: 1
+  maxSize: 1
+  machineType: t4g.medium
+  # The default volume size for Masters is 64 GB, while the default volume size for a node is
+  # 128 GB.
+  rootVolume:
+    size: 10
+    type: gp3
+    encryption: true
+  subnets:
+    - private-a
+
+# ---
+# apiVersion: kops.k8s.io/v1alpha2
+# kind: InstanceGroup
+# metadata:
+#   name: master-b
+#   labels:
+#     kops.k8s.io/cluster: staging.openmedia
+# spec:
+#   role: ControlPlane
+#   minSize: 1
+#   maxSize: 1
+#   machineType: t4g.medium
+#   rootVolume:
+#     size: 10
+#     type: gp3
+#     encryption: true
+#   subnets:
+#     - private-b
+#
+# ---
+# apiVersion: kops.k8s.io/v1alpha2
+# kind: InstanceGroup
+# metadata:
+#   name: master-c
+#   labels:
+#     kops.k8s.io/cluster: staging.openmedia
+# spec:
+#   role: ControlPlane
+#   minSize: 1
+#   maxSize: 1
+#   machineType: t4g.medium
+#   rootVolume:
+#     size: 10
+#     type: gp3
+#     encryption: true
+#   subnets:
+#     - private-c
+
+---
+apiVersion: kops.k8s.io/v1alpha2
+kind: InstanceGroup
+metadata:
+  name: general
+  labels:
+    kops.k8s.io/cluster: staging.openmedia
+spec:
+  role: Node
+  minSize: 1
+  maxSize: 3
+  machineType: t4g.medium
+  # The default volume size for Masters is 64 GB, while the default volume size for a node is
+  # 128 GB.
+  rootVolume:
+    size: 10
+    type: gp3
+    encryption: true
+  subnets:
+    - private-a
+    - private-b
+    - private-c

@@ -1,0 +1,11 @@
+*
+
+!backend
+backend/.env
+backend/Dockerfile
+!bun.lock
+!bunfig.toml
+!nx.json
+!package.json
+!tsconfig.base.json
+!vitest.workspace.ts

@@ -1,0 +1,22 @@
+name: openmedia-devcontainer
+
+networks:
+  openmedia: {}
+
+services:
+  devcontainer:
+    container_name: openmedia-devcontainer
+    image: ghcr.io/lucernae/devcontainer-nix:v1.2.0
+    privileged: true
+    volumes:
+      - ../:/workspace:cached
+      - nix:/nix
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      NIX_MULTI_USER: "true"
+      NIX_REMOTE: "daemon"
+      VSCODE_SERVER_CUSTOM_GLIBC_LINKER: "true"
+    command: /bin/bash -c "while sleep 1000; do :; done"
+
+volumes:
+  nix: {}

@@ -1,0 +1,38 @@
+# Nix related.
+.direnv/
+.devenv/
+
+# Claude related.
+.claude/skills/
+.agents/skills/
+.claude/worktrees/
+.claude/settings.local.json
+
+# Nx related.
+.nx/
+
+# Dependencies.
+node_modules/
+vendor/
+
+# Build outputs.
+dist/
+
+# OS related.
+.DS_Store
+
+# Environment variables related.
+.env*
+!.envrc
+
+# Terraform related.
+terraform.tfstate
+terraform.tfstate.*
+.terraform.tfstate.lock.info
+.terraform/
+*.tfvars
+
+# Kubernetes related.
+charts/
+renderred/
+kubeconfig.yaml
