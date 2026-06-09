@@ -3,7 +3,7 @@ import { PaginatedInput } from "@openmedia/backend/utils/pagination"
 import { Post } from "./models"
 
 @InputType()
-export class CreatePostArgs extends PickType(Post, ["imageURL", "description"], InputType) {}
+export class CreatePostArgs extends PickType(Post, ["description"], InputType) {}
 
 @InputType()
 export class GetPostsByAuthorArgs extends PaginatedInput {

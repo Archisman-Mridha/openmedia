@@ -3,7 +3,6 @@ import { Mutation, Query, Resolver } from "@nestjs/graphql"
 import { Args } from "@openmedia/backend/decorators/args"
 import { CurrentUser } from "@openmedia/backend/decorators/current-user"
 import { CreatePostCommand } from "../commands/create-post"
-import { GetPresignedPostImageURLCommand } from "../commands/get-presigned-post-image-url"
 import { GetPostByIDQuery } from "../queries/get-post-by-id"
 import { GetPostsByAuthorQuery } from "../queries/get-posts-by-author"
 import type { CreatePostArgs, GetPostArgs, GetPostsByAuthorArgs } from "./args"
@@ -15,11 +14,6 @@ export class PostsResolver {
 		private readonly commandBus: CommandBus,
 		private readonly queryBus: QueryBus
 	) {}
-
-	@Mutation(() => String)
-	async getPresignedPostImageURL(@CurrentUser() userID: number): Promise<string> {
-		return this.commandBus.execute(new GetPresignedPostImageURLCommand({ userID }))
-	}
 
 	@Mutation(() => Number)
 	async createPost(@CurrentUser() authorID: number, @Args() args: CreatePostArgs): Promise<number> {

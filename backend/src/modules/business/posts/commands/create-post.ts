@@ -5,8 +5,7 @@ import { PostEntity } from "../entity"
 
 export interface CreatePostInput {
 	authorID: number
-	imageURL: string
-	decription?: string
+	description: string
 }
 
 export class CreatePostCommand extends Command<PostEntity> {

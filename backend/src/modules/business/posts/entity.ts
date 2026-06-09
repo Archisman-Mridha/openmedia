@@ -14,11 +14,7 @@ export class PostEntity {
 	@Column({ type: "integer" })
 	authorID: number
 
-	@Field()
-	@Column({ type: "text" })
-	imageURL: string
-
 	@Field({ nullable: true })
-	@Column({ type: "varchar", nullable: true, length: POST_DESCRIPTION_MAX_LENGTH })
-	description?: string
+	@Column({ type: "varchar", length: POST_DESCRIPTION_MAX_LENGTH })
+	description: string
 }
