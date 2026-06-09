@@ -1,14 +1,14 @@
 import { Injectable, UseGuards } from "@nestjs/common"
-import type { CommandBus, QueryBus } from "@nestjs/cqrs"
+import { CommandBus, QueryBus } from "@nestjs/cqrs"
 import { Mutation, Query, Resolver } from "@nestjs/graphql"
 import { Args } from "@openmedia/backend/decorators/args"
 import { CurrentUser } from "@openmedia/backend/decorators/current-user"
 import { PublicRoute } from "@openmedia/backend/decorators/public-route"
 import { CreateUserCommand } from "../../users/commands/create-user"
-import type { UserEntity } from "../../users/entity"
+import { UserEntity } from "../../users/entity"
 import { SigninQuery } from "../queries/signin"
 import { LocalAuthGuard } from "../strategies/local"
-import { type SigninArgs, SigninOutput, type SignupArgs } from "./args"
+import { SigninArgs, SigninOutput, SignupArgs } from "./args"
 
 @Injectable()
 @Resolver()

@@ -1,6 +1,6 @@
 import { Command, CommandHandler, type ICommandHandler } from "@nestjs/cqrs"
 import { InjectRepository } from "@nestjs/typeorm"
-import type { Repository } from "typeorm"
+import { Repository } from "typeorm"
 import { UserEntity } from "../entity"
 
 export interface CreateUserInput {

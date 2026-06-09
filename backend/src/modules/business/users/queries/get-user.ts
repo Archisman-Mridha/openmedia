@@ -1,7 +1,7 @@
 import { UnauthorizedException } from "@nestjs/common"
 import { type IQueryHandler, Query, QueryHandler } from "@nestjs/cqrs"
 import { InjectRepository } from "@nestjs/typeorm"
-import type { FindOneOptions, Repository } from "typeorm"
+import { FindOneOptions, Repository } from "typeorm"
 import { UserEntity } from "../entity"
 
 export class GetUserQuery extends Query<UserEntity> {

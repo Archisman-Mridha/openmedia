@@ -18,7 +18,12 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"recommended": true
+			"recommended": true,
+			"style": {
+				// NestJS DI requires value imports so SWC can emit decorator metadata.
+				// import type erases the runtime reference, making paramtypes resolve to Object.
+				"useImportType": "off"
+			}
 		}
 	},
 	"assist": {

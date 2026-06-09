@@ -1,9 +1,9 @@
 import { NotFoundException } from "@nestjs/common"
 import { type IQueryHandler, Query, QueryHandler } from "@nestjs/cqrs"
 import { InjectRepository } from "@nestjs/typeorm"
-import type { Repository } from "typeorm"
+import { Repository } from "typeorm"
 import { ProfileEntity } from "../entity"
-import type { ProfilePreview } from "../types"
+import { ProfilePreview } from "../types"
 
 export interface GetProfilePreviewByIDInput {
 	id: number

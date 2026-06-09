@@ -1,8 +1,8 @@
 import { type IQueryHandler, Query, QueryHandler } from "@nestjs/cqrs"
-import type { ElasticsearchService } from "@nestjs/elasticsearch"
+import { ElasticsearchService } from "@nestjs/elasticsearch"
 import { ElasticsearchIndex } from "@openmedia/backend/utils/elasticsearch"
-import type { PaginatedInput, PaginatedOutput } from "@openmedia/backend/utils/pagination"
-import type { ProfileDocument, ProfilePreview } from "../types"
+import { PaginatedInput, PaginatedOutput } from "@openmedia/backend/utils/pagination"
+import { ProfileDocument, ProfilePreview } from "../types"
 
 export interface SearchProfilesInput extends PaginatedInput {
 	query: string

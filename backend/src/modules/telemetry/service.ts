@@ -1,6 +1,6 @@
 import { EventEmitter } from "node:events"
 import { Injectable, Logger, type OnModuleDestroy, type OnModuleInit } from "@nestjs/common"
-import type { ConfigService } from "@nestjs/config"
+import { ConfigService } from "@nestjs/config"
 import { isDevelopmentEnvironment } from "@openmedia/backend/utils/utils"
 import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node"
 import {

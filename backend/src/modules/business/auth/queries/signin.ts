@@ -1,7 +1,7 @@
 import { type IQueryHandler, Query, QueryHandler } from "@nestjs/cqrs"
-import type { JwtService } from "@nestjs/jwt"
-import type { UserEntity } from "@openmedia/backend/modules/business/users/entity"
-import type { JWTPayload } from "../strategies/jwt"
+import { JwtService } from "@nestjs/jwt"
+import { UserEntity } from "@openmedia/backend/modules/business/users/entity"
+import { JWTPayload } from "../strategies/jwt"
 
 export interface SigninOutput {
 	userID: number

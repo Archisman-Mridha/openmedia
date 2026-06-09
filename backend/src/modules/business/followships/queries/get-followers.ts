@@ -1,7 +1,7 @@
 import { type IQueryHandler, Query, QueryHandler } from "@nestjs/cqrs"
 import { InjectRepository } from "@nestjs/typeorm"
-import type { PaginatedInput, PaginatedOutput } from "@openmedia/backend/utils/pagination"
-import type { Repository } from "typeorm"
+import { PaginatedInput, PaginatedOutput } from "@openmedia/backend/utils/pagination"
+import { Repository } from "typeorm"
 import { FollowshipEntity } from "../entity"
 
 export interface GetFollowersInput extends PaginatedInput {

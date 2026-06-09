@@ -1,6 +1,6 @@
 import { type IQueryHandler, Query, QueryHandler } from "@nestjs/cqrs"
 import { InjectRepository } from "@nestjs/typeorm"
-import type { Repository } from "typeorm"
+import { Repository } from "typeorm"
 import { FollowshipEntity } from "../entity"
 
 export interface FollowshipExistsInput {

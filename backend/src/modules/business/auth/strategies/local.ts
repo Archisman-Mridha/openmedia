@@ -1,11 +1,11 @@
 import { type ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common"
-import type { QueryBus } from "@nestjs/cqrs"
+import { QueryBus } from "@nestjs/cqrs"
 import { GqlExecutionContext } from "@nestjs/graphql"
 import { AuthGuard, PassportStrategy } from "@nestjs/passport"
 import { GetUserQuery } from "@openmedia/backend/modules/business/users/queries/get-user"
 import bcrypt from "bcrypt"
 import { Strategy } from "passport-local"
-import type { UserEntity } from "../../users/entity"
+import { UserEntity } from "../../users/entity"
 
 @Injectable()
 export class LocalAuthStrategy extends PassportStrategy(Strategy) {

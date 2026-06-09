@@ -2,9 +2,9 @@ import type { RedisClusterType } from "@keyv/redis"
 import { Controller, Get, Inject } from "@nestjs/common"
 import {
 	HealthCheck,
-	type HealthCheckService,
-	type HealthIndicatorService,
-	type TypeOrmHealthIndicator
+	HealthCheckService,
+	HealthIndicatorService,
+	TypeOrmHealthIndicator
 } from "@nestjs/terminus"
 import { REDIS_CLUSTER_CLIENT } from "@openmedia/backend/modules/redis/module"
 

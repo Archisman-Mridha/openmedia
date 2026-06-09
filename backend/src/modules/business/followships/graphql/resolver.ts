@@ -1,4 +1,4 @@
-import type { CommandBus, QueryBus } from "@nestjs/cqrs"
+import { CommandBus, QueryBus } from "@nestjs/cqrs"
 import { Mutation, Query, Resolver } from "@nestjs/graphql"
 import { Args } from "@openmedia/backend/decorators/args"
 import { CurrentUser } from "@openmedia/backend/decorators/current-user"
@@ -6,7 +6,7 @@ import { CreateFollowshipCommand } from "../commands/create-followship"
 import { DeleteFollowshipCommand } from "../commands/delete-followship"
 import { GetFolloweesQuery } from "../queries/get-followees"
 import { GetFollowersQuery } from "../queries/get-followers"
-import type {
+import {
 	CreateFollowshipArgs,
 	DeleteFollowshipArgs,
 	GetFolloweesArgs,

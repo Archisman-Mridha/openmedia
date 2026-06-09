@@ -1,11 +1,11 @@
-import type { CommandBus, QueryBus } from "@nestjs/cqrs"
+import { CommandBus, QueryBus } from "@nestjs/cqrs"
 import { Mutation, Query, Resolver } from "@nestjs/graphql"
 import { Args } from "@openmedia/backend/decorators/args"
 import { CurrentUser } from "@openmedia/backend/decorators/current-user"
 import { CreatePostCommand } from "../commands/create-post"
 import { GetPostByIDQuery } from "../queries/get-post-by-id"
 import { GetPostsByAuthorQuery } from "../queries/get-posts-by-author"
-import type { CreatePostArgs, GetPostArgs, GetPostsByAuthorArgs } from "./args"
+import { CreatePostArgs, GetPostArgs, GetPostsByAuthorArgs } from "./args"
 import { Post, Posts } from "./models"
 
 @Resolver(() => Post)
