@@ -21,3 +21,11 @@ vulnerability:
   ignore-unfixed: true
   type:
     - library
+
+misconfiguration:
+  scanners:
+    - dockerfile
+    - kubernetes
+    - terraform
+    - terraformplan-json
+    - terraformplan-snapshot
