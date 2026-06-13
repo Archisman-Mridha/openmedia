@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/instance: opencost
+    app.kubernetes.io/managed-by: Helmraiser
+    app.kubernetes.io/name: opencost
+    app.kubernetes.io/part-of: opencost
+    app.kubernetes.io/version: 1.120.3
+    app.tanka.grafana.com: opencost
+    helm.sh/chart: opencost-2.5.22
+  name: opencost
+  namespace: opencost
+spec:
+  ports:
+  - name: http
+    port: 9003
+    targetPort: 9003
+  - name: mcp-server
+    port: 8081
+    targetPort: 8081
+  - name: http-ui
+    port: 9090
+    targetPort: 9090
+  selector:
+    app.kubernetes.io/instance: opencost
+    app.kubernetes.io/name: opencost
+  type: ClusterIP

@@ -1,0 +1,48 @@
+apiVersion: v1
+data:
+  manifests.yaml: |
+    ShortName: ebs
+    StorageClass:
+      FromFile: storageclass.yaml
+    SnapshotClass:
+      FromName: true
+    DriverInfo:
+      Name: ebs.csi.aws.com
+      SupportedSizeRange:
+        Min: 1Gi
+        Max: 16Ti
+      SupportedFsType:
+        xfs: {}
+        ext4: {}
+      SupportedMountOption:
+        dirsync: {}
+      TopologyKeys: ["topology.ebs.csi.aws.com/zone"]
+      Capabilities:
+        persistence: true
+        fsGroup: true
+        block: true
+        exec: true
+        snapshotDataSource: true
+        pvcDataSource: false
+        multipods: true
+        controllerExpansion: true
+        nodeExpansion: true
+        volumeLimits: true
+        topology: true
+  storageclass.yaml: |
+    kind: StorageClass
+    apiVersion: storage.k8s.io/v1
+    metadata:
+      name: ebs.csi.aws.com
+    provisioner: ebs.csi.aws.com
+    volumeBindingMode: WaitForFirstConsumer
+kind: ConfigMap
+metadata:
+  annotations:
+    helm.sh/hook: test
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded,hook-failed
+  labels:
+    app.kubernetes.io/managed-by: Helmraiser
+    app.tanka.grafana.com: aws-ebs-csi-driver
+  name: ebs-csi-driver-test
+  namespace: default

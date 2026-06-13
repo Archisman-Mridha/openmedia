@@ -1,0 +1,19 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app: strimzi
+    app.kubernetes.io/managed-by: Helmraiser
+    app.tanka.grafana.com: strimzi
+    chart: strimzi-kafka-operator-0.35.0
+    component: client-role
+    heritage: Helm
+    release: strimzi
+  name: strimzi-kafka-client
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  verbs:
+  - get

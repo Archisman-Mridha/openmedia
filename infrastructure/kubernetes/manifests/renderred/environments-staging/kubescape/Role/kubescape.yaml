@@ -1,0 +1,30 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app: kubescape
+    app.kubernetes.io/component: kubescape
+    app.kubernetes.io/instance: kubescape
+    app.kubernetes.io/managed-by: Helmraiser
+    app.kubernetes.io/name: kubescape-operator
+    app.kubernetes.io/part-of: kubescape
+    app.kubernetes.io/version: 1.40.2
+    app.tanka.grafana.com: kubescape
+    helm.sh/chart: kubescape-operator-1.40.2
+    kubescape.io/ignore: "true"
+    tier: ks-control-plane
+  name: kubescape
+  namespace: kubescape
+rules:
+- apiGroups:
+  - apps
+  resources:
+  - daemonsets
+  verbs:
+  - create
+  - get
+  - update
+  - watch
+  - list
+  - patch
+  - delete

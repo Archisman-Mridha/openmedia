@@ -1,0 +1,124 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app: operator
+    app.kubernetes.io/component: operator
+    app.kubernetes.io/instance: kubescape
+    app.kubernetes.io/managed-by: Helmraiser
+    app.kubernetes.io/name: kubescape-operator
+    app.kubernetes.io/part-of: kubescape
+    app.kubernetes.io/version: 1.40.2
+    app.tanka.grafana.com: kubescape
+    helm.sh/chart: kubescape-operator-1.40.2
+    kubescape.io/ignore: "true"
+    tier: ks-control-plane
+  name: operator
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - nodes
+  - namespaces
+  - configmaps
+  - services
+  verbs:
+  - get
+  - watch
+  - list
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+  - watch
+  - list
+- apiGroups:
+  - batch
+  resources:
+  - jobs
+  - cronjobs
+  verbs:
+  - get
+  - watch
+  - list
+  - create
+  - update
+  - delete
+  - patch
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  - daemonsets
+  - statefulsets
+  - replicasets
+  verbs:
+  - get
+  - watch
+  - list
+- apiGroups:
+  - spdx.softwarecomposition.kubescape.io
+  resources:
+  - vulnerabilitymanifests
+  - vulnerabilitymanifestsummaries
+  - workloadconfigurationscans
+  - workloadconfigurationscansummaries
+  - openvulnerabilityexchangecontainers
+  - containerprofiles
+  - sbomsyfts
+  verbs:
+  - get
+  - watch
+  - list
+  - delete
+- apiGroups:
+  - kubescape.io
+  resources:
+  - runtimerulealertbindings
+  verbs:
+  - list
+  - watch
+  - get
+- apiGroups:
+  - kubescape.io
+  resources:
+  - servicesscanresults
+  verbs:
+  - get
+  - watch
+  - list
+  - create
+  - update
+  - delete
+  - patch
+- apiGroups:
+  - kubescape.io
+  resources:
+  - operatorcommands
+  verbs:
+  - get
+  - watch
+  - list
+  - create
+  - update
+  - patch
+- apiGroups:
+  - kubescape.io
+  resources:
+  - operatorcommands/status
+  verbs:
+  - get
+  - watch
+  - list
+  - update
+  - patch

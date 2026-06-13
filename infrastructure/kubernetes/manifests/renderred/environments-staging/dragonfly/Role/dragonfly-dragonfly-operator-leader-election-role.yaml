@@ -1,0 +1,47 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: dragonfly-operator
+    app.kubernetes.io/instance: dragonfly
+    app.kubernetes.io/managed-by: Helmraiser
+    app.kubernetes.io/name: dragonfly-operator
+    app.kubernetes.io/part-of: dragonfly-operator
+    app.kubernetes.io/version: v1.5.0
+    app.tanka.grafana.com: dragonfly
+    helm.sh/chart: dragonfly-operator-v1.5.0
+  name: dragonfly-dragonfly-operator-leader-election-role
+  namespace: dragonfly
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch

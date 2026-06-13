@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/instance: openobserve
+    app.kubernetes.io/managed-by: Helmraiser
+    app.kubernetes.io/name: openobserve
+    app.kubernetes.io/version: v0.80.2
+    app.tanka.grafana.com: openobserve
+    helm.sh/chart: openobserve-0.80.3
+  name: openobserve-reportserver
+  namespace: default
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: openobserve
+      app.kubernetes.io/name: openobserve
+      role: reportserver
+  template:
+    metadata:
+      annotations:
+        checksum/generic-config: 4be8404da77b7953b90361835d5c71fe1eba39caaf9377e4128f4b33fab90c7d
+        checksum/specific-config: 0260448f79db96671b28876112b42ba0287bb68361467cb324062e2fe10a00cf
+      labels:
+        app.kubernetes.io/instance: openobserve
+        app.kubernetes.io/name: openobserve
+        role: reportserver
+    spec:
+      containers:
+      - env:
+        - name: ZO_NODE_ROLE
+          value: reportserver
+        - name: XDG_CONFIG_HOME
+          value: /tmp/.chromium
+        - name: XDG_CACHE_HOME
+          value: /tmp/.chromium
+        envFrom:
+        - configMapRef:
+            name: openobserve
+        - configMapRef:
+            name: openobserve-reportserver
+        - secretRef:
+            name: openobserve-auth-credentials
+        image: o2cr.ai/openobserve/report-server:v0.11.2-88574bc
+        imagePullPolicy: IfNotPresent
+        name: openobserve-reportserver
+        ports:
+        - containerPort: 5080
+          name: http
+          protocol: TCP
+        resources: {}
+        securityContext: {}
+      securityContext:
+        fsGroup: 2000
+        runAsGroup: 3000
+        runAsNonRoot: true
+        runAsUser: 10000
+      serviceAccountName: openobserve

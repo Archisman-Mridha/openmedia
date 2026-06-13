@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    prometheus.io/port: "3305"
+    prometheus.io/scrape: "true"
+  labels:
+    app: ebs-csi-controller-liveness-probe
+    app.kubernetes.io/managed-by: Helmraiser
+    app.tanka.grafana.com: aws-ebs-csi-driver
+  name: ebs-csi-controller-liveness-probe
+  namespace: aws
+spec:
+  ports:
+  - name: metrics
+    port: 3305
+    targetPort: 3305
+  selector:
+    app: ebs-csi-controller
+  type: ClusterIP

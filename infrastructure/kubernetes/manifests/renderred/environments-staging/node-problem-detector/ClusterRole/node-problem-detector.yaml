@@ -1,0 +1,31 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/instance: node-problem-detector
+    app.kubernetes.io/managed-by: Helmraiser
+    app.kubernetes.io/name: node-problem-detector
+    app.tanka.grafana.com: node-problem-detector
+    helm.sh/chart: node-problem-detector-2.4.1
+  name: node-problem-detector
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  verbs:
+  - get
+- apiGroups:
+  - ""
+  resources:
+  - nodes/status
+  verbs:
+  - patch
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+  - update

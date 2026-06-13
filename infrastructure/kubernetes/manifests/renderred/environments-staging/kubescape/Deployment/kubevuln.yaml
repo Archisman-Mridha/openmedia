@@ -1,0 +1,132 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: kubevuln
+    app.kubernetes.io/component: kubevuln
+    app.kubernetes.io/instance: kubescape
+    app.kubernetes.io/managed-by: Helmraiser
+    app.kubernetes.io/name: kubescape-operator
+    app.kubernetes.io/part-of: kubescape
+    app.kubernetes.io/version: 1.40.2
+    app.tanka.grafana.com: kubescape
+    helm.sh/chart: kubescape-operator-1.40.2
+    kubescape.io/ignore: "true"
+    kubescape.io/tier: core
+    tier: ks-control-plane
+  name: kubevuln
+  namespace: kubescape
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: kubevuln
+      app.kubernetes.io/instance: kubescape
+      app.kubernetes.io/name: kubescape-operator
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        checksum/cloud-config: 3879d226bb5751c63c50c606f70fa2e51e342c3bd5939bb1afaa548c67ee242f
+        checksum/cloud-secret: 192498af36fa8b505f01b472407fcc09b948e1259f80663d34f3f3885cdf0d25
+      labels:
+        app: kubevuln
+        app.kubernetes.io/component: kubevuln
+        app.kubernetes.io/instance: kubescape
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: kubescape-operator
+        app.kubernetes.io/part-of: kubescape
+        app.kubernetes.io/version: 1.40.2
+        helm.sh/chart: kubescape-operator-1.40.2
+        kubescape.io/ignore: "true"
+        kubescape.io/tier: core
+        tier: ks-control-plane
+    spec:
+      affinity: null
+      automountServiceAccountToken: true
+      containers:
+      - args:
+        - -alsologtostderr
+        - -v=4
+        - 2>&1
+        env:
+        - name: GOMEMLIMIT
+          value: 4000MiB
+        - name: KS_LOGGER_LEVEL
+          value: info
+        - name: KS_LOGGER_NAME
+          value: zap
+        - name: PRINT_POST_JSON
+          value: ""
+        - name: CA_MAX_VULN_SCAN_ROUTINES
+          value: "1"
+        image: quay.io/kubescape/kubevuln:v0.3.142
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          httpGet:
+            path: /v1/liveness
+            port: 8080
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        name: kubevuln
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /v1/readiness
+            port: 8080
+        resources:
+          limits:
+            cpu: 1500m
+            ephemeral-storage: 10Gi
+            memory: 5000Mi
+          requests:
+            cpu: 300m
+            ephemeral-storage: 5Gi
+            memory: 1000Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+        volumeMounts:
+        - mountPath: /etc/credentials
+          name: cloud-secret
+          readOnly: true
+        - mountPath: /tmp
+          name: tmp-dir
+        - mountPath: /home/nonroot/anchore-resources/db
+          name: grype-db-cache
+        - mountPath: /etc/config/clusterData.json
+          name: ks-cloud-config
+          readOnly: true
+          subPath: clusterData.json
+        - mountPath: /home/nonroot/.cache/grype
+          name: grype-db
+      nodeSelector:
+        kubernetes.io/os: linux
+      securityContext:
+        fsGroup: 65532
+        runAsUser: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      serviceAccountName: kubevuln
+      tolerations: null
+      volumes:
+      - name: cloud-secret
+        secret:
+          secretName: cloud-secret
+      - emptyDir: {}
+        name: tmp-dir
+      - emptyDir: {}
+        name: grype-db-cache
+      - configMap:
+          items:
+          - key: clusterData
+            path: clusterData.json
+          name: ks-cloud-config
+        name: ks-cloud-config
+      - emptyDir: {}
+        name: grype-db

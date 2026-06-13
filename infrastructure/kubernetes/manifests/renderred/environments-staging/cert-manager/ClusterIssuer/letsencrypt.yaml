@@ -1,0 +1,25 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  labels:
+    app.kubernetes.io/component: cluster-issuer
+    app.kubernetes.io/instance: cert-manager
+    app.kubernetes.io/name: cert-manager
+    app.kubernetes.io/part-of: cert-manager
+    app.kubernetes.io/version: ""
+    app.tanka.grafana.com: cert-manager
+  name: letsencrypt
+  namespace: default
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+  email: archismanmridha12345@gmail.com
+  privateKeySecretRef:
+    name: letsencrypt
+  solvers:
+  - dns01:
+      cloudflare:
+        apiKeySecretRef:
+          name: cloudflare-credentials
+          namespace: cert-manager
+        email: archismanmridha12345@gmail.com

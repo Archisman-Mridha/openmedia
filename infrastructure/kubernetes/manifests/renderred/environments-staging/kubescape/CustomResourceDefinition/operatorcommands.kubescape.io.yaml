@@ -1,0 +1,94 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: Helmraiser
+    app.tanka.grafana.com: kubescape
+  name: operatorcommands.kubescape.io
+spec:
+  group: kubescape.io
+  names:
+    kind: OperatorCommand
+    plural: operatorcommands
+    shortNames:
+    - opcmd
+    singular: operatorcommand
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        properties:
+          spec:
+            properties:
+              args:
+                additionalProperties: true
+                nullable: true
+                type: object
+              body:
+                format: byte
+                nullable: true
+                type: string
+              commandCount:
+                nullable: true
+                type: integer
+              commandIndex:
+                nullable: true
+                type: integer
+              commandType:
+                type: string
+              commandVersion:
+                nullable: true
+                type: string
+              designators:
+                items:
+                  additionalProperties: true
+                  type: object
+                type: array
+              guid:
+                type: string
+              ttl:
+                format: duration
+                nullable: true
+                type: string
+            type: object
+          status:
+            properties:
+              completed:
+                type: boolean
+              completedAt:
+                format: date-time
+                nullable: true
+                type: string
+              error:
+                nullable: true
+                properties:
+                  errorCode:
+                    nullable: true
+                    type: integer
+                  message:
+                    nullable: true
+                    type: string
+                  reason:
+                    nullable: true
+                    type: string
+                type: object
+              executer:
+                nullable: true
+                type: string
+              payload:
+                format: byte
+                nullable: true
+                type: string
+              started:
+                type: boolean
+              startedAt:
+                format: date-time
+                nullable: true
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

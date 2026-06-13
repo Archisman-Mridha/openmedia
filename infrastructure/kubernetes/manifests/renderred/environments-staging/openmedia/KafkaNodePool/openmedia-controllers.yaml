@@ -1,0 +1,19 @@
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaNodePool
+metadata:
+  labels:
+    app.tanka.grafana.com: openmedia
+    strimzi.io/cluster: openmedia
+  name: openmedia-controllers
+  namespace: openmedia
+spec:
+  replicas: 3
+  roles:
+  - controller
+  storage:
+    type: jbod
+    volumes:
+    - id: 0
+      kraftMetadata: shared
+      size: 1Gi
+      type: persistent-claim

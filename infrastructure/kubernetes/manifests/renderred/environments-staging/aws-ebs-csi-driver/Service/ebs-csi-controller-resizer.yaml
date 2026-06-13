@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    prometheus.io/port: "3304"
+    prometheus.io/scrape: "true"
+  labels:
+    app: ebs-csi-controller-resizer
+    app.kubernetes.io/managed-by: Helmraiser
+    app.tanka.grafana.com: aws-ebs-csi-driver
+  name: ebs-csi-controller-resizer
+  namespace: aws
+spec:
+  ports:
+  - name: metrics
+    port: 3304
+    targetPort: 3304
+  selector:
+    app: ebs-csi-controller
+  type: ClusterIP

@@ -1,0 +1,120 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: storage
+    app.kubernetes.io/component: storage
+    app.kubernetes.io/instance: kubescape
+    app.kubernetes.io/managed-by: Helmraiser
+    app.kubernetes.io/name: kubescape-operator
+    app.kubernetes.io/part-of: kubescape
+    app.kubernetes.io/version: 1.40.2
+    app.tanka.grafana.com: kubescape
+    helm.sh/chart: kubescape-operator-1.40.2
+    kubescape.io/ignore: "true"
+    kubescape.io/tier: core
+    tier: ks-control-plane
+  name: storage
+  namespace: kubescape
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: storage
+      app.kubernetes.io/instance: kubescape
+      app.kubernetes.io/name: kubescape-operator
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: storage
+        app.kubernetes.io/component: storage
+        app.kubernetes.io/instance: kubescape
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: kubescape-operator
+        app.kubernetes.io/part-of: kubescape
+        app.kubernetes.io/version: 1.40.2
+        helm.sh/chart: kubescape-operator-1.40.2
+        kubescape.io/ignore: "true"
+        kubescape.io/tier: core
+        tier: ks-control-plane
+    spec:
+      affinity: null
+      containers:
+      - env:
+        - name: GOMEMLIMIT
+          valueFrom:
+            resourceFieldRef:
+              divisor: "1"
+              resource: limits.memory
+        - name: KS_LOGGER_LEVEL
+          value: info
+        - name: KS_LOGGER_NAME
+          value: zap
+        image: quay.io/kubescape/storage:v0.0.274
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          httpGet:
+            path: /livez
+            port: 8443
+            scheme: HTTPS
+        name: apiserver
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8443
+            scheme: HTTPS
+        resources:
+          limits:
+            cpu: 1500m
+            memory: 1500Mi
+          requests:
+            cpu: 100m
+            memory: 400Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+        volumeMounts:
+        - mountPath: /data
+          name: data
+        - mountPath: /etc/config/clusterData.json
+          name: ks-cloud-config
+          readOnly: true
+          subPath: clusterData.json
+        - mountPath: /etc/config/config.json
+          name: config
+          readOnly: true
+          subPath: config.json
+        - mountPath: /etc/storage-ca-certificates
+          name: ca-certificates
+          readOnly: true
+      nodeSelector:
+        kubernetes.io/os: linux
+      securityContext:
+        fsGroup: 65532
+        runAsUser: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      serviceAccountName: storage
+      tolerations: null
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: kubescape-storage
+      - configMap:
+          items:
+          - key: clusterData
+            path: clusterData.json
+          name: ks-cloud-config
+        name: ks-cloud-config
+      - configMap:
+          items:
+          - key: config.json
+            path: config.json
+          name: storage
+        name: config
+      - name: ca-certificates
+        secret:
+          secretName: storage-tls

@@ -1,0 +1,20 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/instance: aws-node-termination-handler
+    app.kubernetes.io/managed-by: Helmraiser
+    app.kubernetes.io/name: aws-node-termination-handler
+    app.kubernetes.io/part-of: aws-node-termination-handler
+    app.kubernetes.io/version: 1.25.6
+    app.tanka.grafana.com: aws-node-termination-handler
+    helm.sh/chart: aws-node-termination-handler-0.27.6
+  name: aws-node-termination-handler
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: aws-node-termination-handler
+subjects:
+- kind: ServiceAccount
+  name: aws-node-termination-handler
+  namespace: aws

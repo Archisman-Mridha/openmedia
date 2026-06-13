@@ -1,0 +1,31 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  annotations:
+    helm.sh/hook: pre-delete
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+    helm.sh/hook-weight: "1"
+  creationTimestamp: null
+  labels:
+    app.kubernetes.io/managed-by: Helmraiser
+    app.tanka.grafana.com: openkruise
+  name: kruise-helm-hook-role
+rules:
+- apiGroups:
+  - apps.kruise.io
+  resources:
+  - clonesets
+  verbs:
+  - list
+- apiGroups:
+  - apps.kruise.io
+  resources:
+  - daemonsets
+  verbs:
+  - list
+- apiGroups:
+  - apps.kruise.io
+  resources:
+  - statefulsets
+  verbs:
+  - list

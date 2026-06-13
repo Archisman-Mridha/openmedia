@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: Helmraiser
+    app.tanka.grafana.com: openobserve
+  name: openobserve-openfga
+  namespace: openobserve
+spec:
+  ports:
+  - port: 8080
+    targetPort: 8080
+  selector:
+    app: openfga

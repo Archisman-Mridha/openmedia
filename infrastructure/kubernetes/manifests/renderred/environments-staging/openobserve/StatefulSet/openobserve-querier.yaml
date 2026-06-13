@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app.kubernetes.io/instance: openobserve
+    app.kubernetes.io/managed-by: Helmraiser
+    app.kubernetes.io/name: openobserve
+    app.kubernetes.io/version: v0.80.2
+    app.tanka.grafana.com: openobserve
+    helm.sh/chart: openobserve-0.80.3
+  name: openobserve-querier
+  namespace: openobserve
+spec:
+  podManagementPolicy: Parallel
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: openobserve
+      app.kubernetes.io/name: openobserve
+      role: querier
+  serviceName: openobserve-querier
+  template:
+    metadata:
+      annotations:
+        checksum/generic-config: 4be8404da77b7953b90361835d5c71fe1eba39caaf9377e4128f4b33fab90c7d
+        checksum/specific-config: 2fed392e3f732010182dd341ce78c112f591e8d89bcb3bfddec9c2805b6d6144
+      labels:
+        app.kubernetes.io/instance: openobserve
+        app.kubernetes.io/name: openobserve
+        role: querier
+    spec:
+      containers:
+      - env:
+        - name: ZO_NODE_ROLE
+          value: querier
+        - name: K8S_CONTAINER_NAME
+          value: openobserve-querier
+        - name: K8S_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: K8S_NAMESPACE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: K8S_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: K8S_POD_ID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.uid
+        - name: K8S_CONTAINER_IMAGE
+          value: o2cr.ai/openobserve/openobserve-enterprise:v0.80.2
+        envFrom:
+        - configMapRef:
+            name: openobserve
+        - configMapRef:
+            name: openobserve-querier
+        - secretRef:
+            name: openobserve-auth-credentials
+        image: o2cr.ai/openobserve/openobserve-enterprise:v0.80.2
+        imagePullPolicy: IfNotPresent
+        name: openobserve-querier
+        ports:
+        - containerPort: 5080
+          name: http
+        - containerPort: 5081
+          name: grpc
+        resources: {}
+        securityContext: {}
+      initContainers:
+      - command:
+        - sh
+        - -c
+        - ' until nc -zv openobserve-nats 4222; do echo "Waiting for NATS to be ready...";
+          sleep 2; done; '
+        image: public.ecr.aws/docker/library/busybox:1.36.1
+        name: check-nats
+        resources:
+          limits:
+            cpu: 50m
+            memory: 50Mi
+      securityContext:
+        fsGroup: 2000
+        runAsGroup: 3000
+        runAsNonRoot: true
+        runAsUser: 10000
+      serviceAccountName: openobserve
+  updateStrategy:
+    rollingUpdate:
+      partition: 0
+    type: RollingUpdate

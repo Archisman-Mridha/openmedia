@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: strimzi
+    app.kubernetes.io/managed-by: Helmraiser
+    app.tanka.grafana.com: strimzi
+    chart: strimzi-kafka-operator-0.35.0
+    component: service-account
+    heritage: Helm
+    release: strimzi
+  name: strimzi-cluster-operator
+  namespace: strimzi

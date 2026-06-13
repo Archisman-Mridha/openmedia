@@ -1,0 +1,39 @@
+apiVersion: v1
+data:
+  clamd.conf: |-
+    Foreground yes
+    User root
+    Debug no
+    LeaveTemporaryFiles no
+    LogTime no
+    LogClean no
+    LogVerbose no
+    LocalSocket /run/clamav/clamd.sock
+    LocalSocketGroup clamav
+    LocalSocketMode 660
+    MaxDirectoryRecursion 20
+    ExtendedDetectionInfo yes
+  freshclam.conf: |-
+    Foreground yes
+    DatabaseDirectory /var/lib/clamav
+    UpdateLogFile /dev/stdout
+    Debug no
+    LogFileMaxSize 0
+    LogTime yes
+    DatabaseOwner root
+    DNSDatabaseInfo current.cvd.clamav.net
+    DatabaseMirror database.clamav.net
+    MaxAttempts 3
+    ScriptedUpdates no
+    CompressLocalDatabase no
+    TestDatabases yes
+    Checks 0
+    ConnectTimeout 30
+    ReceiveTimeout 60
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: Helmraiser
+    app.tanka.grafana.com: kubescape
+  name: clamav
+  namespace: kubescape

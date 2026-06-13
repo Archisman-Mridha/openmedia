@@ -1,0 +1,28 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  labels:
+    app.kubernetes.io/instance: aws-node-termination-handler
+    app.kubernetes.io/managed-by: Helmraiser
+    app.kubernetes.io/name: aws-node-termination-handler
+    app.kubernetes.io/part-of: aws-node-termination-handler
+    app.kubernetes.io/version: 1.25.6
+    app.tanka.grafana.com: aws-node-termination-handler
+    helm.sh/chart: aws-node-termination-handler-0.27.6
+  name: aws-node-termination-handler
+  namespace: aws
+spec:
+  jobLabel: app.kubernetes.io/name
+  namespaceSelector:
+    matchNames:
+    - aws
+  podMetricsEndpoints:
+  - interval: 30s
+    path: /metrics
+    port: http-metrics
+  sampleLimit: 5000
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: daemonset
+      app.kubernetes.io/instance: aws-node-termination-handler
+      app.kubernetes.io/name: aws-node-termination-handler

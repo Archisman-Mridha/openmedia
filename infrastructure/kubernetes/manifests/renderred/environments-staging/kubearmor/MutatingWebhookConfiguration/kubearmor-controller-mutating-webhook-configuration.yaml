@@ -1,0 +1,36 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: Helmraiser
+    app.tanka.grafana.com: kubearmor
+  name: kubearmor-controller-mutating-webhook-configuration
+  namespace: kubearmor
+webhooks:
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURLakNDQWhLZ0F3SUJBZ0lSQU1VOG9VaHlLTGRGNDVhUlVFQ2Y1ZTh3RFFZSktvWklodmNOQVFFTEJRQXcKSHpFZE1Cc0dBMVVFQXhNVWEzVmlaV0Z5Ylc5eUxXTnZiblJ5YjJ4c1pYSXdIaGNOTWpZd05qRXpNVFkwTlRVegpXaGNOTWprd05qRXlNVFkwTlRVeldqQWZNUjB3R3dZRFZRUURFeFJyZFdKbFlYSnRiM0l0WTI5dWRISnZiR3hsCmNqQ0NBU0l3RFFZSktvWklodmNOQVFFQkJRQURnZ0VQQURDQ0FRb0NnZ0VCQUw3V3VJbHpzL2tRa2Z0V0ovb3IKaDBkQ0hBQVR0NXMxUTVWQjcyMXd2VklQR0lDZjAySWh4eHhCd3F3aDc1eU9ZNGlnOGJDcG90UXJhdm1WblRodwpIV0x5YlFkK1p1VllzWnVaSTNTRllIais1N2ZtTm1PY1REQzEvVER4UHMvTUhhTzF1a0xxcmgwQlp1R3BDbWhmCkZPZStlR0dVUG02blI3ck9lQkUvVDJjbW9ZYXNFRHNnb0FjNldOZm5tT2drQkJYMUtHUUdIeFdxWUVqVmVlYUEKQWRGY1VFOTNHUkJCekREUmNVT2doKzBwYVF6SGNiVnBhQ09Nakd6ek1wcmZUQUQ3OC9ieDh6Q0RwSG5lTG5OdwpyNncrT0RQNmg5MkZ2MFFxSDg0WmxmbmM5M1NIR0xSaVpkSnpLUUpqSkVnY3JNcWkzR0RhdGxpM0RoK0pVbEM1CmFsc0NBd0VBQWFOaE1GOHdEZ1lEVlIwUEFRSC9CQVFEQWdLa01CMEdBMVVkSlFRV01CUUdDQ3NHQVFVRkJ3TUIKQmdnckJnRUZCUWNEQWpBUEJnTlZIUk1CQWY4RUJUQURBUUgvTUIwR0ExVWREZ1FXQkJRUWxKYlBKbWNqUXNGQwpLOWpReWg2bGFiMG4wVEFOQmdrcWhraUc5dzBCQVFzRkFBT0NBUUVBV3NXZ1ZERnNrTzhLQWluTm52ZlRMcDIrCkpHaXk3a2IzQ2N1aUprdmtPeUFOdjJmMitwajRBRng5eXRXZUlsL2xlZHlMMlR6V2VjV3VPOTN1Vy90ZTE5VGQKRnR1R3Q1dERxWGZzOXFQMUFpYUtxTktHTTBZU2RtaDduZi9ua3BhU2dwdUJINFd1alVLek5ab0Y3dzBjVTlqaApBcFlDQ3VlcDBhUmdDbnFuMCtkNTh3Y0NuU1czazVPYnpJczl0SVYzaThDQVNNaG8rcm0vTFV1N3pzeE01MjA2CnVUTVFMQ3lyaEFvbnlUSGJ5SEV4NmJBN1JFS0owbTJmMkY4c3MwT2NVSDdBUmpPbWFROEM2NkxMWi8yMEl3bkwKLzNxWmpSTnpLNHlXUTlRTUgwd0kydGF3ZjVueEE5NlNPUzNQemJTTFF6cUdxaU9leFFleWlmK1dNOC9jUEE9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+    service:
+      name: kubearmor-controller-webhook-service
+      namespace: kubearmor
+      path: /mutate-pods
+  failurePolicy: Ignore
+  name: annotation.kubearmor.com
+  objectSelector:
+    matchExpressions:
+    - key: kubearmor-app
+      operator: DoesNotExist
+  rules:
+  - apiGroups:
+    - ""
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - pods
+    - pods/binding
+    scope: '*'
+  sideEffects: NoneOnDryRun

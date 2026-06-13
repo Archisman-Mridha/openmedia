@@ -1,0 +1,20 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: Helmraiser
+    app.kubernetes.io/part-of: cilium
+    app.tanka.grafana.com: cilium
+  name: cilium-operator-ztunnel
+  namespace: cilium
+rules:
+- apiGroups:
+  - apps
+  resources:
+  - daemonsets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - watch

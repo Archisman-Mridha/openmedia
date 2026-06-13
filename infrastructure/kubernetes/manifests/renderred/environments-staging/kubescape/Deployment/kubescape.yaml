@@ -1,0 +1,162 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: kubescape
+    app.kubernetes.io/component: kubescape
+    app.kubernetes.io/instance: kubescape
+    app.kubernetes.io/managed-by: Helmraiser
+    app.kubernetes.io/name: kubescape-operator
+    app.kubernetes.io/part-of: kubescape
+    app.kubernetes.io/version: 1.40.2
+    app.tanka.grafana.com: kubescape
+    helm.sh/chart: kubescape-operator-1.40.2
+    kubescape.io/ignore: "true"
+    kubescape.io/tier: core
+    tier: ks-control-plane
+  name: kubescape
+  namespace: kubescape
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: kubescape
+      app.kubernetes.io/instance: kubescape
+      app.kubernetes.io/name: kubescape-operator
+  strategy:
+    rollingUpdate:
+      maxSurge: 0%
+      maxUnavailable: 100%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        checksum/cloud-config: 3879d226bb5751c63c50c606f70fa2e51e342c3bd5939bb1afaa548c67ee242f
+        checksum/cloud-secret: 192498af36fa8b505f01b472407fcc09b948e1259f80663d34f3f3885cdf0d25
+      labels:
+        app: kubescape
+        app.kubernetes.io/component: kubescape
+        app.kubernetes.io/instance: kubescape
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: kubescape-operator
+        app.kubernetes.io/part-of: kubescape
+        app.kubernetes.io/version: 1.40.2
+        helm.sh/chart: kubescape-operator-1.40.2
+        kubescape.io/ignore: "true"
+        kubescape.io/tier: core
+        tier: ks-control-plane
+    spec:
+      affinity: null
+      automountServiceAccountToken: true
+      containers:
+      - command:
+        - ksserver
+        env:
+        - name: GOMEMLIMIT
+          valueFrom:
+            resourceFieldRef:
+              divisor: "1"
+              resource: limits.memory
+        - name: KS_LOGGER_LEVEL
+          value: info
+        - name: KS_LOGGER_NAME
+          value: zap
+        - name: KS_DOWNLOAD_ARTIFACTS
+          value: "true"
+        - name: KS_DEFAULT_CONFIGMAP_NAME
+          value: kubescape-config
+        - name: KS_DEFAULT_CONFIGMAP_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: KS_CONTEXT
+          value: staging.openmedia
+        - name: KS_DEFAULT_CLOUD_CONFIGMAP_NAME
+          value: ks-cloud-config
+        - name: KS_ENABLE_HOST_SCANNER
+          value: "true"
+        - name: KS_SKIP_UPDATE_CHECK
+          value: "false"
+        - name: KS_HOST_SCAN_YAML
+          value: /home/nonroot/.kubescape/host-scanner.yaml
+        - name: LARGE_CLUSTER_SIZE
+          value: "1500"
+        - name: KS_EXCLUDE_NAMESPACES
+          value: kubescape,kube-system,kube-public,kube-node-lease,kubeconfig,gmp-system,gmp-public
+        image: quay.io/kubescape/kubescape:v4.0.8
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          httpGet:
+            path: /livez
+            port: 8080
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        name: kubescape
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8080
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        resources:
+          limits:
+            cpu: 600m
+            memory: 1Gi
+          requests:
+            cpu: 250m
+            memory: 400Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+        volumeMounts:
+        - mountPath: /etc/credentials
+          name: cloud-secret
+          readOnly: true
+        - mountPath: /home/nonroot/.kubescape
+          name: kubescape-volume
+          subPath: config.json
+        - mountPath: /home/nonroot/.kubescape/host-scanner.yaml
+          name: host-scanner-definition
+          subPath: host-scanner-yaml
+        - mountPath: /home/nonroot/results
+          name: results
+        - mountPath: /home/nonroot/failed
+          name: failed
+        - mountPath: /etc/config/clusterData.json
+          name: ks-cloud-config
+          readOnly: true
+          subPath: clusterData.json
+      nodeSelector:
+        kubernetes.io/os: linux
+      securityContext:
+        fsGroup: 65532
+        runAsUser: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      serviceAccountName: kubescape
+      tolerations: null
+      volumes:
+      - name: cloud-secret
+        secret:
+          secretName: cloud-secret
+      - configMap:
+          items:
+          - key: clusterData
+            path: clusterData.json
+          name: ks-cloud-config
+        name: ks-cloud-config
+      - configMap:
+          name: host-scanner-definition
+        name: host-scanner-definition
+      - emptyDir: {}
+        name: kubescape-volume
+      - emptyDir: {}
+        name: results
+      - emptyDir: {}
+        name: failed

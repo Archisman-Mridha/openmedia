@@ -1,0 +1,31 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/created-by: dragonfly-operator
+    app.kubernetes.io/instance: dragonfly
+    app.kubernetes.io/managed-by: Helmraiser
+    app.kubernetes.io/name: dragonfly-operator
+    app.kubernetes.io/part-of: dragonfly-operator
+    app.kubernetes.io/version: v1.5.0
+    app.tanka.grafana.com: dragonfly
+    helm.sh/chart: dragonfly-operator-v1.5.0
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+  name: dragonfly-dragonfly-operator-aggregate-to-view
+rules:
+- apiGroups:
+  - dragonflydb.io
+  resources:
+  - dragonflies
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - dragonflydb.io
+  resources:
+  - dragonflies/status
+  verbs:
+  - get
+  - list
+  - watch

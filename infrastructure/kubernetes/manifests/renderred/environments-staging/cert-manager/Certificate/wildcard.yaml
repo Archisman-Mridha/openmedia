@@ -1,0 +1,20 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  labels:
+    app.kubernetes.io/component: cluster-issuer
+    app.kubernetes.io/instance: cert-manager
+    app.kubernetes.io/name: cert-manager
+    app.kubernetes.io/part-of: cert-manager
+    app.kubernetes.io/version: ""
+    app.tanka.grafana.com: cert-manager
+  name: wildcard
+  namespace: gateway-api
+spec:
+  dnsNames:
+  - staging.openmedia.projectsofarchi.xyz
+  - '*.staging.openmedia.projectsofarchi.xyz'
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+  secretName: wildcard-certificate

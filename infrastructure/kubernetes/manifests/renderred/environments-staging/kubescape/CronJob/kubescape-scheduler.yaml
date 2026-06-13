@@ -1,0 +1,84 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  labels:
+    app: kubescape-scheduler
+    app.kubernetes.io/component: kubescape-scheduler
+    app.kubernetes.io/instance: kubescape
+    app.kubernetes.io/managed-by: Helmraiser
+    app.kubernetes.io/name: kubescape-operator
+    app.kubernetes.io/part-of: kubescape
+    app.kubernetes.io/version: 1.40.2
+    app.tanka.grafana.com: kubescape
+    armo.tier: kubescape-scan
+    helm.sh/chart: kubescape-operator-1.40.2
+    kubescape.io/ignore: "true"
+    kubescape.io/tier: core
+    tier: ks-control-plane
+  name: kubescape-scheduler
+  namespace: kubescape
+spec:
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          annotations: null
+          labels:
+            app: kubescape-scheduler
+            app.kubernetes.io/component: kubescape-scheduler
+            app.kubernetes.io/instance: kubescape
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: kubescape-operator
+            app.kubernetes.io/part-of: kubescape
+            app.kubernetes.io/version: 1.40.2
+            armo.tier: kubescape-scan
+            helm.sh/chart: kubescape-operator-1.40.2
+            kubescape.io/ignore: "true"
+            kubescape.io/tier: core
+            tier: ks-control-plane
+        spec:
+          affinity: null
+          automountServiceAccountToken: false
+          containers:
+          - args:
+            - -method=post
+            - -scheme=http
+            - -host=operator:4002
+            - -path=v1/triggerAction
+            - -headers=Content-Type:application/json
+            - -path-body=/home/ks/request-body.json
+            image: quay.io/kubescape/http-request:v0.2.19
+            imagePullPolicy: IfNotPresent
+            name: kubescape-scheduler
+            resources:
+              limits:
+                cpu: 10m
+                memory: 20Mi
+              requests:
+                cpu: 1m
+                memory: 10Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              runAsNonRoot: true
+              runAsUser: 100
+            volumeMounts:
+            - mountPath: /home/ks/request-body.json
+              name: kubescape-scheduler
+              readOnly: true
+              subPath: request-body.json
+          nodeSelector:
+            kubernetes.io/os: linux
+          restartPolicy: Never
+          securityContext:
+            seccompProfile:
+              type: RuntimeDefault
+          serviceAccountName: kubescape
+          tolerations: null
+          volumes:
+          - configMap:
+              name: kubescape-scheduler
+            name: kubescape-scheduler
+  schedule: 27 15 * * *
+  successfulJobsHistoryLimit: 3

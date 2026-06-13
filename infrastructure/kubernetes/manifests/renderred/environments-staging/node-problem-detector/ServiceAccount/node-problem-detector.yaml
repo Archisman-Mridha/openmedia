@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/instance: node-problem-detector
+    app.kubernetes.io/managed-by: Helmraiser
+    app.kubernetes.io/name: node-problem-detector
+    app.tanka.grafana.com: node-problem-detector
+    helm.sh/chart: node-problem-detector-2.4.1
+  name: node-problem-detector
+  namespace: node-problem-detector

@@ -1,0 +1,20 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: ebs-csi-controller-provisioner
+    app.kubernetes.io/managed-by: Helmraiser
+    app.tanka.grafana.com: aws-ebs-csi-driver
+  name: ebs-csi-controller-provisioner
+  namespace: aws
+spec:
+  endpoints:
+  - interval: 15s
+    path: /metrics
+    targetPort: 3302
+  namespaceSelector:
+    matchNames:
+    - aws
+  selector:
+    matchLabels:
+      app: ebs-csi-controller-provisioner

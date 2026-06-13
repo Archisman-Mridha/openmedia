@@ -1,0 +1,27 @@
+apiVersion: v1
+data:
+  alertThrottling: "true"
+  defaultCapabilitiesPosture: audit
+  defaultFilePosture: audit
+  defaultNetworkPosture: audit
+  karmor.yaml: |
+    alertThrottling: true
+    defaultCapabilitiesPosture: audit
+    defaultFilePosture: audit
+    defaultNetworkPosture: audit
+    matchArgs: true
+    maxAlertPerSec: 10
+    throttleSec: 30
+    visibility: process,network
+  matchArgs: "true"
+  maxAlertPerSec: "10"
+  throttleSec: "30"
+  visibility: process,network
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: Helmraiser
+    app.tanka.grafana.com: kubearmor
+    kubearmor-app: kubearmor-configmap
+  name: kubearmor-config
+  namespace: kubearmor

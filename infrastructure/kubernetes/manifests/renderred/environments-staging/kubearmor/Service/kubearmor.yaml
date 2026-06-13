@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: Helmraiser
+    app.tanka.grafana.com: kubearmor
+    kubearmor-app: kubearmor-relay
+  name: kubearmor
+  namespace: kubearmor
+spec:
+  ports:
+  - port: 32767
+    protocol: TCP
+    targetPort: 32767
+  selector:
+    kubearmor-app: kubearmor-relay

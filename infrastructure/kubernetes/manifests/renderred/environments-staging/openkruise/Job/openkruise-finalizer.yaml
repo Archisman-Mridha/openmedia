@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    helm.sh/hook: pre-delete
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+    helm.sh/hook-weight: "4"
+  labels:
+    app.kubernetes.io/instance: openkruise
+    app.kubernetes.io/managed-by: Helmraiser
+    app.kubernetes.io/version: 1.9.0-alpha3
+    app.tanka.grafana.com: openkruise
+    helm.sh/chart: kruise-1.9.0-alpha3
+    kruise: helm-finalizer
+  name: openkruise-finalizer
+  namespace: kruise-system
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: openkruise
+        app.kubernetes.io/managed-by: Helm
+        helm.sh/chart: kruise-1.9.0-alpha3
+        kruise: helm-finalizer
+      name: openkruise-finalizer
+    spec:
+      containers:
+      - image: openkruise/kruise-helm-hook:v0.1.0
+        imagePullPolicy: IfNotPresent
+        name: pre-delete-job
+      restartPolicy: Never
+      serviceAccountName: kruise-helm-hook

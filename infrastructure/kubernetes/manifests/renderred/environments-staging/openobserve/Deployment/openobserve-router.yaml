@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/instance: openobserve
+    app.kubernetes.io/managed-by: Helmraiser
+    app.kubernetes.io/name: openobserve
+    app.kubernetes.io/version: v0.80.2
+    app.tanka.grafana.com: openobserve
+    helm.sh/chart: openobserve-0.80.3
+  name: openobserve-router
+  namespace: openobserve
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: openobserve
+      app.kubernetes.io/name: openobserve
+      role: router
+  template:
+    metadata:
+      annotations:
+        checksum/generic-config: 4be8404da77b7953b90361835d5c71fe1eba39caaf9377e4128f4b33fab90c7d
+        checksum/specific-config: a2efa467670beed1f78f0c739e57eb918a2f516b8da3fae731c801467874abcb
+      labels:
+        app.kubernetes.io/instance: openobserve
+        app.kubernetes.io/name: openobserve
+        role: router
+    spec:
+      containers:
+      - env:
+        - name: ZO_NODE_ROLE
+          value: router
+        envFrom:
+        - configMapRef:
+            name: openobserve
+        - configMapRef:
+            name: openobserve-router
+        - secretRef:
+            name: openobserve-auth-credentials
+        image: o2cr.ai/openobserve/openobserve-enterprise:v0.80.2
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz
+            port: 5080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          terminationGracePeriodSeconds: 30
+          timeoutSeconds: 5
+        name: openobserve-router
+        ports:
+        - containerPort: 5080
+          name: http
+        - containerPort: 5081
+          name: grpc
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz
+            port: 5080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        resources: {}
+        securityContext: {}
+        startupProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz
+            port: 5080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+      initContainers:
+      - command:
+        - sh
+        - -c
+        - ' until nc -zv openobserve-nats 4222; do echo "Waiting for NATS to be ready...";
+          sleep 2; done; '
+        image: public.ecr.aws/docker/library/busybox:1.36.1
+        name: check-nats
+        resources:
+          limits:
+            cpu: 50m
+            memory: 50Mi
+      securityContext:
+        fsGroup: 2000
+        runAsGroup: 3000
+        runAsNonRoot: true
+        runAsUser: 10000
+      serviceAccountName: openobserve

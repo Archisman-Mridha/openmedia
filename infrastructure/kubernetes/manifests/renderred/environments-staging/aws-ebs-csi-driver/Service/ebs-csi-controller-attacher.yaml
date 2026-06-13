@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    prometheus.io/port: "3303"
+    prometheus.io/scrape: "true"
+  labels:
+    app: ebs-csi-controller-attacher
+    app.kubernetes.io/managed-by: Helmraiser
+    app.tanka.grafana.com: aws-ebs-csi-driver
+  name: ebs-csi-controller-attacher
+  namespace: aws
+spec:
+  ports:
+  - name: metrics
+    port: 3303
+    targetPort: 3303
+  selector:
+    app: ebs-csi-controller
+  type: ClusterIP

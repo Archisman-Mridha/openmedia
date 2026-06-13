@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: Helmraiser
+    app.tanka.grafana.com: openkruise
+  name: kruise-webhook-service
+  namespace: kruise-system
+spec:
+  ports:
+  - port: 443
+    targetPort: 9876
+  selector:
+    control-plane: controller-manager

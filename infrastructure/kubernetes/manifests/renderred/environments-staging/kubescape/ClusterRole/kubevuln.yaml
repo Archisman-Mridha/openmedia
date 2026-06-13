@@ -1,0 +1,40 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app: kubevuln
+    app.kubernetes.io/component: kubevuln
+    app.kubernetes.io/instance: kubescape
+    app.kubernetes.io/managed-by: Helmraiser
+    app.kubernetes.io/name: kubescape-operator
+    app.kubernetes.io/part-of: kubescape
+    app.kubernetes.io/version: 1.40.2
+    app.tanka.grafana.com: kubescape
+    helm.sh/chart: kubescape-operator-1.40.2
+    kubescape.io/ignore: "true"
+    tier: ks-control-plane
+  name: kubevuln
+rules:
+- apiGroups:
+  - spdx.softwarecomposition.kubescape.io
+  resources:
+  - vulnerabilitymanifests
+  - vulnerabilitymanifestsummaries
+  - openvulnerabilityexchangecontainers
+  - sbomsyfts
+  - sbomsyftfiltereds
+  verbs:
+  - create
+  - get
+  - update
+  - watch
+  - list
+  - patch
+- apiGroups:
+  - spdx.softwarecomposition.kubescape.io
+  resources:
+  - containerprofiles
+  verbs:
+  - get
+  - watch
+  - list

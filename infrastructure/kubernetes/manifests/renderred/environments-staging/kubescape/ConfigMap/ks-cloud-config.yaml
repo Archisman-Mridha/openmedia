@@ -1,0 +1,46 @@
+apiVersion: v1
+data:
+  clusterData: |
+    {
+      "serviceDiscovery": false,
+      "vulnScanURL": "kubevuln:8080",
+      "kubevulnURL": "kubevuln:8080",
+      "kubescapeURL": "kubescape:8080",
+      "clusterName": "staging-openmedia",
+      "storage": true,
+      "relevantImageVulnerabilitiesEnabled": true,
+      "namespace": "kubescape",
+      "imageVulnerabilitiesScanningEnabled": true,
+      "postureScanEnabled": true,
+      "otelCollector": false,
+      "nodeAgent": "true",
+      "maxImageSize": 5.36870912e+09,
+      "maxSBOMSize": 2.097152e+07,
+      "keepLocal": true,
+      "scanTimeout": "5m",
+      "scanEmbeddedSBOMs": true,
+      "vexGeneration": false,
+      "useDefaultMatchers": false,
+      "storeFilteredSbom": true,
+      "continuousPostureScan": true,
+      "relevantImageVulnerabilitiesConfiguration": "enable",
+      "riskAcceptance": false
+    }
+kind: ConfigMap
+metadata:
+  labels:
+    app: ks-cloud-config
+    app.kubernetes.io/component: ks-cloud-config
+    app.kubernetes.io/instance: kubescape
+    app.kubernetes.io/managed-by: Helmraiser
+    app.kubernetes.io/name: kubescape-operator
+    app.kubernetes.io/part-of: kubescape
+    app.kubernetes.io/version: 1.40.2
+    app.tanka.grafana.com: kubescape
+    helm.sh/chart: kubescape-operator-1.40.2
+    kubescape.io/ignore: "true"
+    kubescape.io/infra: config
+    kubescape.io/tier: core
+    tier: ks-control-plane
+  name: ks-cloud-config
+  namespace: kubescape

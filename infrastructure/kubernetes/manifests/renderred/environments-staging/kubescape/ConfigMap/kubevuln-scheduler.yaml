@@ -1,0 +1,20 @@
+apiVersion: v1
+data:
+  request-body.json: '{"commands":[{"commandName":"scan","designators":[{"designatorType":"Attributes","attributes":{}}]}]}'
+kind: ConfigMap
+metadata:
+  labels:
+    app: kubevuln-scheduler
+    app.kubernetes.io/component: kubevuln-scheduler
+    app.kubernetes.io/instance: kubescape
+    app.kubernetes.io/managed-by: Helmraiser
+    app.kubernetes.io/name: kubescape-operator
+    app.kubernetes.io/part-of: kubescape
+    app.kubernetes.io/version: 1.40.2
+    app.tanka.grafana.com: kubescape
+    helm.sh/chart: kubescape-operator-1.40.2
+    kubescape.io/ignore: "true"
+    kubescape.io/tier: core
+    tier: ks-control-plane
+  name: kubevuln-scheduler
+  namespace: kubescape

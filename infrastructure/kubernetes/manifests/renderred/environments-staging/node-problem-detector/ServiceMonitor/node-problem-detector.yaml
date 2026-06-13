@@ -1,0 +1,33 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app.kubernetes.io/instance: node-problem-detector
+    app.kubernetes.io/managed-by: Helmraiser
+    app.kubernetes.io/name: node-problem-detector
+    app.tanka.grafana.com: node-problem-detector
+    helm.sh/chart: node-problem-detector-2.4.1
+  name: node-problem-detector
+  namespace: node-problem-detector
+spec:
+  attachMetadata:
+    node: false
+  endpoints:
+  - interval: 60s
+    path: /metrics
+    port: exporter
+    relabelings:
+    - action: replace
+      sourceLabels:
+      - __meta_kubernetes_pod_node_name
+      targetLabel: node
+    - action: replace
+      sourceLabels:
+      - __meta_kubernetes_pod_host_ip
+      targetLabel: host_ip
+  namespaceSelector:
+    matchNames:
+    - node-problem-detector
+  selector:
+    matchLabels:
+      app: node-problem-detector

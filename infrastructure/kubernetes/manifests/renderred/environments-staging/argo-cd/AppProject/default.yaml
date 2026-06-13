@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  labels:
+    app.tanka.grafana.com: argo-cd
+  name: default
+  namespace: argo-cd
+spec:
+  clusterResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  destinations:
+  - namespace: '*'
+    server: '*'
+  orphanedResources:
+    warn: true
+  sourceRepos:
+  - https://github.com/archisman-mridha/openmedia

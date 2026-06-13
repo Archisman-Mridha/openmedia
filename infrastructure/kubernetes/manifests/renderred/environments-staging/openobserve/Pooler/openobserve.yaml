@@ -1,0 +1,16 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Pooler
+metadata:
+  labels:
+    app.tanka.grafana.com: openobserve
+  name: openobserve
+  namespace: openobserve
+spec:
+  cluster:
+    name: openobserve
+  instances: 3
+  pgbouncer:
+    parameters:
+      max_client_conn: "1000"
+    poolMode: session
+  type: rw

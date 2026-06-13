@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/instance: openobserve
+    app.kubernetes.io/managed-by: Helmraiser
+    app.kubernetes.io/name: openobserve
+    app.kubernetes.io/version: v0.80.2
+    app.tanka.grafana.com: openobserve
+    helm.sh/chart: openobserve-0.80.3
+    prometheus.io/scrape: "true"
+    role: ingester
+  name: openobserve-ingester
+  namespace: openobserve
+spec:
+  ports:
+  - name: http
+    port: 5080
+    protocol: TCP
+    targetPort: http
+  - name: grpc
+    port: 5081
+    protocol: TCP
+    targetPort: grpc
+  selector:
+    app.kubernetes.io/instance: openobserve
+    app.kubernetes.io/name: openobserve
+    role: ingester
+  type: ClusterIP
