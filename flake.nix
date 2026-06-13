@@ -19,8 +19,8 @@
     {
       self,
       nixpkgs,
-      devenv,
       systems,
+      devenv,
       ...
     }@inputs:
     let
@@ -51,6 +51,7 @@
                 packages = with pkgs; [
                   bun
 
+                  k3d
                   terraform
                   terragrunt
                   kops
@@ -73,7 +74,7 @@
                 };
 
                 enterShell = ''
-                  export KUBECONFIG="$(pwd)/infrastructure/kops/clusters/staging/kubeconfig.yaml"
+                  export KUBECONFIG="$(pwd)/infrastructure/kubernetes/kubeconfig.yaml"
 
                   prek install
                 '';
