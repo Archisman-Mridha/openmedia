@@ -56,3 +56,10 @@ repos:
         entry: statix check
         language: system
         files: "\\.nix$"
+
+      - id: cocogitto-verify
+        name: Check that commit message follows the conventional commits spec
+        entry: cog verify --file
+        language: system
+        stages:
+          - commit-msg

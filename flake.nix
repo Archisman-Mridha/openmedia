@@ -51,9 +51,11 @@
                 packages = with pkgs; [
                   bun
 
-                  k3d
                   terraform
                   terragrunt
+                  tflint
+
+                  k3d
                   kops
                   tanka
                   go-jsonnet
@@ -61,10 +63,10 @@
                   kubeseal
                   karmor
 
-                  tflint
                   hadolint
                   yamlfmt
                   statix
+                  cocogitto
 
                   prek
                 ];
