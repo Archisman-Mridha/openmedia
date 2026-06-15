@@ -39,6 +39,8 @@ export class HealthController {
 			}
 
 			// TODO : Meilisearch connection.
+
+			// TODO : OTEL (OpenTelemetry) collector connection.
 		])
 	}
 }

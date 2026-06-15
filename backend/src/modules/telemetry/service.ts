@@ -1,4 +1,5 @@
 import { EventEmitter } from "node:events"
+import { Metadata } from "@grpc/grpc-js"
 import { Injectable, Logger, type OnModuleDestroy, type OnModuleInit } from "@nestjs/common"
 import { ConfigService } from "@nestjs/config"
 import { isDevelopmentEnvironment } from "@openmedia/backend/utils/utils"
@@ -8,11 +9,11 @@ import {
 	W3CBaggagePropagator,
 	W3CTraceContextPropagator
 } from "@opentelemetry/core"
-import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http"
+import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-grpc"
+import { CompressionAlgorithm } from "@opentelemetry/otlp-exporter-base"
 import { NodeSDK, type NodeSDKConfiguration } from "@opentelemetry/sdk-node"
 import {
 	BatchSpanProcessor,
-	/* ConsoleSpanExporter, */
 	ParentBasedSampler,
 	TraceIdRatioBasedSampler
 } from "@opentelemetry/sdk-trace-base"
@@ -25,8 +26,20 @@ export class TelemetryService implements OnModuleInit, OnModuleDestroy {
 	private readonly sdk: NodeSDK
 
 	constructor(configService: ConfigService) {
+		const metadata = new Metadata()
+		if (process.env.OTEL_EXPORTER_OTLP_HEADERS) {
+			const headers = JSON.parse(process.env.OTEL_EXPORTER_OTLP_HEADERS) as Record<string, string>
+			for (const [key, value] of Object.entries(headers)) metadata.set(key, value)
+		}
+
+		const traceExporter = new OTLPTraceExporter({
+			url: configService.getOrThrow("OTEL_COLLECTOR_URL"),
+			metadata,
+			compression: CompressionAlgorithm.GZIP
+		})
+
 		let sdkConfig: Partial<NodeSDKConfiguration> = {
-			// traceExporter: new ConsoleSpanExporter(),
+			traceExporter,
 
 			instrumentations: [
 				getNodeAutoInstrumentations({
@@ -58,19 +71,11 @@ export class TelemetryService implements OnModuleInit, OnModuleDestroy {
 					root: new TraceIdRatioBasedSampler(0.1)
 				}),
 
-				spanProcessor: new BatchSpanProcessor(
-					new OTLPTraceExporter({
-						url: configService.getOrThrow("OTEL_COLLECTOR_URL"),
-						headers: process.env.OTEL_EXPORTER_OTLP_HEADERS
-							? JSON.parse(process.env.OTEL_EXPORTER_OTLP_HEADERS)
-							: {}
-					}),
-					{
-						maxExportBatchSize: 200,
-						exportTimeoutMillis: 5000,
-						scheduledDelayMillis: 2000
-					}
-				)
+				spanProcessor: new BatchSpanProcessor(traceExporter, {
+					maxExportBatchSize: 200,
+					exportTimeoutMillis: 5000,
+					scheduledDelayMillis: 2000
+				})
 			}
 
 		this.sdk = new NodeSDK(sdkConfig)
