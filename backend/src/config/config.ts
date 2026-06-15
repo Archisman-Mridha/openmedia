@@ -25,12 +25,13 @@ export const ConfigSchema = z.object({
 
 	POSTGRES_URL: z.string(),
 
-	ELASTICSEARCH_NODES: z.string(),
-
 	// AWS_REGION: z.string(),
 	// AWS_ACCESS_KEY_ID: z.string(),
 	// AWS_SECRET_ACCESS_KEY: z.string(),
 	// AWS_S3_BUCKET: z.string(),
+
+	MEILISEARCH_URL: z.string(),
+	MEILISEARCH_KEY: z.string(),
 
 	REDIS_CLUSTER_NODES: z.string(),
 	REDIS_USERNAME: z.string(),

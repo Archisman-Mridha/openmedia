@@ -1,8 +1,10 @@
+import { Inject } from "@nestjs/common"
 import { Command, CommandHandler, type ICommandHandler } from "@nestjs/cqrs"
-import { ElasticsearchService } from "@nestjs/elasticsearch"
-import { ElasticsearchIndex } from "@openmedia/backend/utils/elasticsearch"
+import { MEILISEARCH_CLIENT } from "@openmedia/backend/modules/meilisearch/module"
+import { MeilisearchIndex } from "@openmedia/backend/utils/meilisearch"
+import { Meilisearch } from "meilisearch"
 import { ProfileEntity } from "../entity"
-import { ProfileDocument } from "../types"
+import { ProfilePreview } from "../types"
 
 export class IndexProfileCommand extends Command<void> {
 	constructor(readonly input: ProfileEntity) {
@@ -12,13 +14,19 @@ export class IndexProfileCommand extends Command<void> {
 
 @CommandHandler(IndexProfileCommand)
 export class IndexProfileHandler implements ICommandHandler<IndexProfileCommand> {
-	constructor(private readonly elasticsearchService: ElasticsearchService) {}
+	constructor(
+		@Inject(MEILISEARCH_CLIENT)
+		private readonly meilisearchClient: Meilisearch
+	) {}
 
 	async execute({ input }: IndexProfileCommand): Promise<void> {
-		await this.elasticsearchService.index<ProfileDocument>({
-			index: ElasticsearchIndex.PROFILES,
-			id: input.id.toString(),
-			document: input
-		})
+		await this.meilisearchClient.index<ProfilePreview>(MeilisearchIndex.PROFILES).addDocuments([
+			{
+				id: input.id,
+
+				name: input.name,
+				username: input.username
+			}
+		])
 	}
 }

@@ -9,6 +9,7 @@ import { CqrsModule } from "@nestjs/cqrs"
 import { GraphQLModule, GraphQLSchemaHost } from "@nestjs/graphql"
 import { TypeOrmModule } from "@nestjs/typeorm"
 import { GraphQLQueryComplexityPlugin } from "@openmedia/backend/graphql/plugins/query-complexity"
+import { MeilisearchModule } from "@openmedia/backend/modules/meilisearch/module"
 import { REDIS_CLUSTER_CLIENT, RedisModule } from "@openmedia/backend/modules/redis/module"
 import { TelemetryModule } from "@openmedia/backend/modules/telemetry/module"
 import { isDevelopmentEnvironment } from "@openmedia/backend/utils/utils"
@@ -36,6 +37,14 @@ import { PingModule } from "../ping/module"
 				const parsedConfig = ConfigSchema.parse(config)
 				return parsedConfig
 			}
+		}),
+
+		MeilisearchModule.registerAsync({
+			inject: [ConfigService],
+			useFactory: (configService: ConfigService<z.infer<typeof ConfigSchema>>) => ({
+				host: configService.getOrThrow("MEILISEARCH_URL"),
+				apiKey: configService.getOrThrow("MEILISEARCH_KEY")
+			})
 		}),
 
 		RedisModule.registerAsync({

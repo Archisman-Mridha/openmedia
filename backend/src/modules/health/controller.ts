@@ -37,6 +37,8 @@ export class HealthController {
 					return indicator.down({ message: (error as Error).message })
 				}
 			}
+
+			// TODO : Meilisearch connection.
 		])
 	}
 }

@@ -27,20 +27,18 @@ services:
         - "CMD-SHELL"
         - "redis-cli -a ${REDIS_PASSWORD} ping"
 
-  zincsearch:
-    image: public.ecr.aws/zinclabs/zincsearch:latest
+  meilisearch:
+    image: getmeili/meilisearch:latest
     environment:
-      ZINC_FIRST_ADMIN_USER: ${ZINCSEARCH_USER}
-      ZINC_FIRST_ADMIN_PASSWORD: ${ZINCSEARCH_PASSWORD}
-      ZINC_DATA_PATH: /data
+      MEILI_MASTER_KEY: ${MEILISEARCH_MASTER_KEY}
     ports:
-      - "4080:4080"
+      - "7700:7700"
     healthcheck:
       test:
         - "CMD"
         - "wget"
         - "-qO-"
-        - "http://127.0.0.1:4080/healthz"
+        - "http://127.0.0.1:7700/health"
 
   redpanda:
     image: redpandadata/redpanda:latest

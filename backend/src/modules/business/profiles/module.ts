@@ -1,9 +1,5 @@
 import { Module } from "@nestjs/common"
-import { ConfigService } from "@nestjs/config"
-import { ElasticsearchModule } from "@nestjs/elasticsearch"
 import { TypeOrmModule } from "@nestjs/typeorm"
-import type z from "zod"
-import type { ConfigSchema } from "../../../config/config"
 import { CreateProfileHandler } from "./commands/create-profile"
 import { IndexProfileHandler } from "./commands/index-profile"
 import { ProfileEntity } from "./entity"
@@ -13,18 +9,7 @@ import { GetProfilePreviewByIDHandler } from "./queries/get-profile-preview-by-i
 import { SearchProfilesHandler } from "./queries/search-profiles"
 
 @Module({
-	imports: [
-		ElasticsearchModule.registerAsync({
-			inject: [ConfigService],
-
-			useFactory: async (configService: ConfigService<z.infer<typeof ConfigSchema>>) => ({
-				nodes: configService.getOrThrow("ELASTICSEARCH_NODES"),
-				compression: true
-			})
-		}),
-
-		TypeOrmModule.forFeature([ProfileEntity])
-	],
+	imports: [TypeOrmModule.forFeature([ProfileEntity])],
 	providers: [
 		ProfilesResolver,
 

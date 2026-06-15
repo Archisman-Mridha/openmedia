@@ -1,8 +1,10 @@
+import { Inject } from "@nestjs/common"
 import { type IQueryHandler, Query, QueryHandler } from "@nestjs/cqrs"
-import { ElasticsearchService } from "@nestjs/elasticsearch"
-import { ElasticsearchIndex } from "@openmedia/backend/utils/elasticsearch"
+import { MEILISEARCH_CLIENT } from "@openmedia/backend/modules/meilisearch/module"
+import { MeilisearchIndex } from "@openmedia/backend/utils/meilisearch"
 import { PaginatedInput, PaginatedOutput } from "@openmedia/backend/utils/pagination"
-import { ProfileDocument, ProfilePreview } from "../types"
+import { Meilisearch } from "meilisearch"
+import { ProfilePreview } from "../types"
 
 export interface SearchProfilesInput extends PaginatedInput {
 	query: string
@@ -20,28 +22,29 @@ export class SearchProfilesQuery extends Query<SearchProfilesOutput> {
 
 @QueryHandler(SearchProfilesQuery)
 export class SearchProfilesHandler implements IQueryHandler<SearchProfilesQuery> {
-	constructor(private readonly elasticsearchService: ElasticsearchService) {}
+	constructor(
+		@Inject(MEILISEARCH_CLIENT)
+		private readonly meilisearchClient: Meilisearch
+	) {}
 
 	async execute({ input }: SearchProfilesQuery): Promise<SearchProfilesOutput> {
-		const { hits } = await this.elasticsearchService.search<ProfileDocument>({
-			index: ElasticsearchIndex.PROFILES,
-			from: input.skip,
-			size: input.take,
-			query: {
-				multi_match: {
-					query: input.query,
-					fields: ["name", "username"]
-				}
-			}
-		})
+		const { hits, estimatedTotalHits } = await this.meilisearchClient
+			.index<ProfilePreview>(MeilisearchIndex.PROFILES)
+			.search(input.query, {
+				attributesToSearchOn: ["name", "username"],
 
-		const profilePreviews = hits.hits.map((hit) => ({
-			id: Number(hit._id!),
-			...hit._source!
+				offset: input.skip,
+				limit: input.take
+			})
+
+		const profilePreviews = hits.map((hit: ProfilePreview) => ({
+			id: hit.id,
+			name: hit.name,
+			username: hit.username
 		}))
 
 		return {
-			count: profilePreviews.length,
+			count: estimatedTotalHits,
 			profilePreviews
 		}
 	}
