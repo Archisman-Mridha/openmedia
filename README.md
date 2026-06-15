@@ -27,3 +27,5 @@
 - [ ] Use a `VPN` (like `NetBird`) to get the Kubernetes API server LB off the internet.
 
 - [ ] Use `KeycloakX` for `Single Sign On (SSO)`. 
+
+- [ ] Write a custom `manager` for updating Helm chart versions in `chartfile.yaml` file of a `Grafana Tanka` project.

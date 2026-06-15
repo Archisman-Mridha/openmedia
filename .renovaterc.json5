@@ -18,9 +18,12 @@
   */
   enabledManagers: [
     "javascript",
+    "gomod",
     "dockerfile",
     "github-actions",
     "terraform",
+    "terragrunt",
+    "tflint-plugin",
     "jsonnet-bundler",
     "nix"
   ]
