@@ -1,0 +1,35 @@
+{
+	"$schema": "../../node_modules/nx/schemas/project-schema.json",
+
+	"name": "terragrunt",
+	"root": "infrastructure/terragrunt",
+	"projectType": "application",
+
+	"inputs": ["{projectRoot}/", "!{projectRoot}/**/.terragrunt-stack/"],
+
+	"targets": {
+		"plan": {
+			"executor": "nx:run-commands",
+			"options": {
+				"cwd": "{projectRoot}/stacks/environments",
+				"command": "terragrunt run --all plan"
+			},
+			"cache": true
+		},
+		"verify": {
+			"executor": "nx:run-commands",
+			"options": {
+				"cwd": "{projectRoot}/stacks/environments",
+				"command": "terragrunt run --all verify"
+			},
+			"cache": true
+		},
+		"apply": {
+			"executor": "nx:run-commands",
+			"options": {
+				"cwd": "{projectRoot}/stacks/environments",
+				"command": "terragrunt run --all apply"
+			}
+		}
+	}
+}
