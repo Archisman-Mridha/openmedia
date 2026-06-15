@@ -17,14 +17,20 @@
     repositories, through the use of managers.
   */
   enabledManagers: [
-    "javascript",
+    "bun",
+
     "gomod",
+
     "dockerfile",
+
     "github-actions",
+
     "terraform",
     "terragrunt",
     "tflint-plugin",
+
     "jsonnet-bundler",
+
     "nix"
   ]
 }
