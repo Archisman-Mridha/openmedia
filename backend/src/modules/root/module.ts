@@ -106,8 +106,8 @@ import { PingModule } from "../ping/module"
 		TypeOrmModule.forRootAsync({
 			inject: [ConfigService],
 			useFactory: (configService: ConfigService<z.infer<typeof ConfigSchema>>) => ({
-				type: "postgres",
-				url: configService.getOrThrow("POSTGRES_URL"),
+				type: "cockroachdb",
+				url: configService.getOrThrow("COCKROACHDB_URL"),
 
 				autoLoadEntities: true,
 

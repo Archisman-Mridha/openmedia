@@ -23,7 +23,7 @@ export const ConfigSchema = z.object({
 	KAFKA_USERNAME: z.string(),
 	KAFKA_PASSWORD: z.string(),
 
-	POSTGRES_URL: z.string(),
+	COCKROACHDB_URL: z.string(),
 
 	// AWS_REGION: z.string(),
 	// AWS_ACCESS_KEY_ID: z.string(),

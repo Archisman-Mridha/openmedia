@@ -4,18 +4,28 @@ networks:
   openmedia: {}
 
 services:
-  postgres:
-    image: postgres:17-alpine
+  cockroachdb:
+    image: cockroachdb/cockroach:latest
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      COCKROACHDB_DB: ${COCKROACHDB_DB}
+    entrypoint:
+      - bash
+      - -c
+    command:
+      - |
+        cockroach start-single-node --insecure --advertise-addr=cockroachdb &
+        until cockroach sql --insecure --host=localhost:26257 -e "SELECT 1" 2>/dev/null; do sleep 1; done
+        cockroach sql --insecure --host=localhost:26257 -e "
+          CREATE DATABASE IF NOT EXISTS $COCKROACHDB_DB;
+        "
+        wait
     ports:
-      - "5432:5432"
+      - "26257:26257"
+      - "8080:8080"
     healthcheck:
       test:
         - "CMD-SHELL"
-        - "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"
+        - "cockroach node status --insecure --host=localhost:26257"
 
   dragonfly:
     image: docker.dragonflydb.io/dragonflydb/dragonfly:latest
@@ -35,10 +45,8 @@ services:
       - "7700:7700"
     healthcheck:
       test:
-        - "CMD"
-        - "wget"
-        - "-qO-"
-        - "http://127.0.0.1:7700/health"
+        - "CMD-SHELL"
+        - "wget -qO- http://127.0.0.1:7700/health"
 
   redpanda:
     image: redpandadata/redpanda:latest
@@ -84,7 +92,5 @@ services:
       - "5080:5080"
     healthcheck:
       test:
-        - "CMD"
-        - "wget"
-        - "-qO-"
-        - "http://127.0.0.1:5080/healthz"
+        - "CMD-SHELL"
+        - "wget -qO- http://127.0.0.1:5080/healthz"
