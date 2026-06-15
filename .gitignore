@@ -25,14 +25,15 @@ dist/
 .env*
 !.envrc
 
-# Terraform related.
+# Terraform and Terragrunt related.
 terraform.tfstate
 terraform.tfstate.*
 .terraform.tfstate.lock.info
 .terraform/
 *.tfvars
+.terragrunt-cache/
+.terragrunt-stack/
 
 # Kubernetes related.
 charts/
-renderred/
 kubeconfig.yaml
