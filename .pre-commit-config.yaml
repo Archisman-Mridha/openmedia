@@ -16,10 +16,10 @@ repos:
     hooks:
       - id: terraform_fmt
         name: Format Terraform and HCL files.
-        exclude: "^(?!infrastructure/terraform/)"
-      - id: terraform_tflint
-        exclude: "^(?!infrastructure/terraform/)"
-        name: Lint Terraform and HCL files.
+        exclude: "^(?!infrastructure/terragrunt/)"
+      - id: terragrunt_fmt
+        exclude: "^(?!infrastructure/terragrunt/)"
+        name: Lint Terragrunt HCL files.
 
   - repo: https://github.com/google/go-jsonnet
     rev: v0.22.0
