@@ -3,7 +3,7 @@ local clusterName = 'staging.openmedia',
 
       email = 'archismanmridha12345@gmail.com',
 
-      openobserveBucketName = 'openobserve.staging',
+      openobserveBucketName = 'openobserve.staging.openmedia',
 
       argoCDSourceRepo = 'https://github.com/archisman-mridha/openmedia';
 
@@ -41,7 +41,11 @@ local clusterName = 'staging.openmedia',
 
 // Miscellaneous.
 
-(import 'cloudnative-pg.libsonnet') +
+(import 'kubevela.libsonnet') +
+(import 'openkruise.libsonnet') +
+
+(import 'cockroachdb.libsonnet') +
+(import 'atlasgo.libsonnet') +
 (import 'strimzi.libsonnet') +
 (import 'meilisearch.libsonnet') +
 (import 'dragonfly.libsonnet') +

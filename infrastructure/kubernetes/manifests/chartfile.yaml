@@ -38,6 +38,8 @@ repositories:
     url: https://kyverno.github.io/kyverno/
   - name: openobserve
     url: https://charts.openobserve.ai
+  - name: openkruise
+    url: https://openkruise.github.io/charts/
 requires:
   - chart: cilium/cilium
     version: 1.19.4
@@ -75,4 +77,6 @@ requires:
     version: 3.8.1
   - chart: openobserve/openobserve
     version: 0.80.3
+  - chart: openkruise/kruise
+    version: 1.9.0-alpha3
 version: 1
