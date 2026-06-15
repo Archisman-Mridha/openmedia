@@ -5,15 +5,6 @@
 	"root": "infrastructure/kubernetes/manifests",
 	"projectType": "application",
 
-	"inputs": [
-		"{projectRoot}/environments/",
-		"{projectRoot}/lib/",
-		"{projectRoot}/chartfile.yaml",
-		"{projectRoot}/jsonnetfile.json",
-		"{projectRoot}/jsonnetfile.lock.json",
-		"{projectRoot}/Makefile"
-	],
-
 	"targets": {
 		"render": {
 			"executor": "nx:run-commands",

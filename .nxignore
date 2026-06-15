@@ -1,0 +1,5 @@
+infrastructure/kubernetes/manifests/charts/
+infrastructure/kubernetes/manifests/renderred/
+vendor/
+
+.terragrunt-stack/

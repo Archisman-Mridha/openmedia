@@ -5,8 +5,6 @@
 	"root": "infrastructure/terragrunt",
 	"projectType": "application",
 
-	"inputs": ["{projectRoot}/", "!{projectRoot}/**/.terragrunt-stack/"],
-
 	"targets": {
 		"plan": {
 			"executor": "nx:run-commands",
