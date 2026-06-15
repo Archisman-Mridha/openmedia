@@ -1,7 +1,9 @@
 import { CommandBus, QueryBus } from "@nestjs/cqrs"
-import { Mutation, Query, Resolver } from "@nestjs/graphql"
+import { Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql"
 import { Args } from "@openmedia/backend/decorators/args"
 import { CurrentUser } from "@openmedia/backend/decorators/current-user"
+import { ProfilePreview } from "../../profiles/graphql/models"
+import { GetProfilePreviewByIDQuery } from "../../profiles/queries/get-profile-preview-by-id"
 import { CreateFollowshipCommand } from "../commands/create-followship"
 import { DeleteFollowshipCommand } from "../commands/delete-followship"
 import { GetFolloweesQuery } from "../queries/get-followees"
@@ -12,7 +14,27 @@ import {
 	GetFolloweesArgs,
 	GetFollowersArgs
 } from "./args"
-import { Followees, Followers } from "./models"
+import { Followee, Followees, Follower, Followers } from "./models"
+
+@Resolver(() => Follower)
+export class FollowerResolver {
+	constructor(private readonly queryBus: QueryBus) {}
+
+	@ResolveField(() => ProfilePreview)
+	async profilePreview(@Parent() follower: Follower): Promise<ProfilePreview> {
+		return this.queryBus.execute(new GetProfilePreviewByIDQuery({ id: follower.id }))
+	}
+}
+
+@Resolver(() => Followee)
+export class FolloweeResolver {
+	constructor(private readonly queryBus: QueryBus) {}
+
+	@ResolveField(() => ProfilePreview)
+	async profilePreview(@Parent() followee: Followee): Promise<ProfilePreview> {
+		return this.queryBus.execute(new GetProfilePreviewByIDQuery({ id: followee.id }))
+	}
+}
 
 @Resolver()
 export class FollowshipsResolver {

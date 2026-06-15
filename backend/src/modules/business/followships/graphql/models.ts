@@ -1,10 +1,15 @@
 import { Field, Int, ObjectType } from "@nestjs/graphql"
 import { PaginatedOutput } from "@openmedia/backend/utils/pagination"
+import { ProfilePreview } from "../../profiles/graphql/models"
 
 @ObjectType()
 export class Follower {
 	@Field(() => Int)
 	id: number
+
+	// NOTE : Resolved by the GraphQL server.
+	@Field(() => ProfilePreview)
+	profilePreview?: ProfilePreview & {}
 }
 
 @ObjectType()
@@ -17,6 +22,10 @@ export class Followers extends PaginatedOutput {
 export class Followee {
 	@Field(() => Int)
 	id: number
+
+	// NOTE : Resolved by the GraphQL server.
+	@Field(() => ProfilePreview)
+	profilePreview?: ProfilePreview & {}
 }
 
 @ObjectType()
