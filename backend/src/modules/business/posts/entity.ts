@@ -11,7 +11,7 @@ export class PostEntity {
 
 	@Field(() => Int)
 	@Index()
-	@Column({ type: "integer" })
+	@Column({ name: "author_id", type: "integer" })
 	authorID: number
 
 	@Field({ nullable: true })

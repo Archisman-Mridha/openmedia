@@ -1,8 +1,8 @@
-import type { RedisClusterType } from "@keyv/redis"
-import { Inject } from "@nestjs/common"
 import { type IQueryHandler, Query, QueryHandler } from "@nestjs/cqrs"
-import { REDIS_CLUSTER_CLIENT } from "@openmedia/backend/modules/redis/module"
-import type { PaginatedInput, PaginatedOutput } from "@openmedia/backend/utils/pagination"
+import { InjectRepository } from "@nestjs/typeorm"
+import { type PaginatedInput, type PaginatedOutput } from "@openmedia/backend/utils/pagination"
+import { Repository } from "typeorm"
+import { FeedEntity } from "../entity"
 
 export interface GetFeedInput extends PaginatedInput {
 	userID: number
@@ -21,22 +21,23 @@ export class GetFeedQuery extends Query<GetFeedOutput> {
 @QueryHandler(GetFeedQuery)
 export class GetFeedHandler implements IQueryHandler<GetFeedQuery> {
 	constructor(
-		@Inject(REDIS_CLUSTER_CLIENT)
-		private readonly redisClusterClient: RedisClusterType
+		@InjectRepository(FeedEntity)
+		private readonly feedRepository: Repository<FeedEntity>
 	) {}
 
 	async execute({ input }: GetFeedQuery): Promise<GetFeedOutput> {
-		const key = `feeds.${input.userID}`
+		const [rows, count] = await this.feedRepository.findAndCount({
+			where: { consumerID: input.userID },
+			order: { postCreatedAt: "DESC" },
+			select: { postID: true },
 
-		const [unparsedPostIDs, count] = await Promise.all([
-			this.redisClusterClient.lRange(key, input.skip, input.take),
-			this.redisClusterClient.lLen(key)
-		])
-		const postIDs = unparsedPostIDs.map((postID) => Number(postID))
+			skip: input.skip,
+			take: input.take
+		})
 
 		return {
 			count,
-			postIDs
+			postIDs: rows.map((row) => row.postID)
 		}
 	}
 }

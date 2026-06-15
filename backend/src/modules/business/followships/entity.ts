@@ -6,10 +6,10 @@ export class FollowshipEntity {
 	id: number
 
 	@Index()
-	@Column({ type: "integer" })
+	@Column({ name: "follower_id", type: "integer" })
 	followerID: number
 
 	@Index()
-	@Column({ type: "integer" })
+	@Column({ name: "followee_id", type: "integer" })
 	followeeID: number
 }

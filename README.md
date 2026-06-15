@@ -2,6 +2,8 @@
 
 ## TODOs
 
+- [ ] Expire `consumer feed`s after 10 days, using `CockroachDB`'s `row level TTL` feature.
+
 - [ ] Shift from `sequential integer ID`s to `UUID`s, as [recommended by `CockroachDB`](https://www.cockroachlabs.com/docs/stable/create-sequence).
 
 - [ ] Automated Backup and Disaster recovery.
