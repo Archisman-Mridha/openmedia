@@ -20,7 +20,20 @@ import { GetProfileByIDArgs, SearchProfilesArgs } from "./args"
 import { Profile, ProfilePreviews } from "./models"
 
 @Injectable()
-@Resolver(() => Profile)
+@Resolver(
+	/*
+    Here, it's important to specify Profile, instead of ( ) => Profile. Otherwise, things will
+    break.
+
+    NestJS's getResolverTypeFn( ) checks whether the passed argument has a .prototype propery.
+    When it does, it means that the passed argument is Person. Otherwise, it's ( ) => Person.
+
+    But, SWC (used by RsPack) compiles the arrow function : ( ) => Profile to regular function :
+    function( ) { return Profile }. And this regular function has the .prototype property. So,
+    NestJS ends up treating it as a class reference, and wraps it, which leads to :
+  */
+	() => Profile
+)
 export class ProfilesResolver {
 	constructor(
 		private readonly commandBus: CommandBus,
@@ -65,7 +78,7 @@ export class ProfilesResolver {
 		return profile
 	}
 
-	@ResolveField(() => [Post])
+	@ResolveField(() => FollowshipCounts)
 	async followshipCounts(@Parent() profile: Profile): Promise<FollowshipCounts> {
 		return this.queryBus.execute(new GetFollowshipCountsQuery({ profileID: profile.id }))
 	}

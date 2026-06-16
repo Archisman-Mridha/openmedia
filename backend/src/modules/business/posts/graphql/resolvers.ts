@@ -10,7 +10,7 @@ import { GetPostsByAuthorQuery } from "../queries/get-posts-by-author"
 import { CreatePostArgs, GetPostArgs, GetPostsByAuthorArgs } from "./args"
 import { Post, Posts } from "./models"
 
-@Resolver(() => Post)
+@Resolver(Post)
 export class PostsResolver {
 	constructor(
 		private readonly commandBus: CommandBus,

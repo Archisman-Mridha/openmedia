@@ -16,7 +16,7 @@ import {
 } from "./args"
 import { Followee, Followees, Follower, Followers } from "./models"
 
-@Resolver(() => Follower)
+@Resolver(Follower)
 export class FollowerResolver {
 	constructor(private readonly queryBus: QueryBus) {}
 
@@ -26,7 +26,7 @@ export class FollowerResolver {
 	}
 }
 
-@Resolver(() => Followee)
+@Resolver(Followee)
 export class FolloweeResolver {
 	constructor(private readonly queryBus: QueryBus) {}
 

@@ -1,8 +1,8 @@
 import { Column, Entity, Index, PrimaryGeneratedColumn, Unique } from "typeorm"
 
 @Entity({ name: "feeds" })
-@Unique(["consumer_id", "post_id"])
-@Index(["consumer_id", "post_created_at"])
+@Unique(["consumerID", "postID"])
+@Index(["consumerID", "postCreatedAt"])
 export class FeedEntity {
 	@PrimaryGeneratedColumn("uuid")
 	id: string
