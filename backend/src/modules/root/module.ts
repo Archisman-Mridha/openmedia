@@ -111,7 +111,7 @@ import { PingModule } from "../ping/module"
 
 				autoLoadEntities: true,
 
-				migrations: ["generated/migrations/**"],
+				migrations: ["backend/generated/migrations/**"],
 				migrationsRun: true,
 
 				// Indicates if database schema should be auto created on every application launch.

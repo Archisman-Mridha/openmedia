@@ -1,0 +1,194 @@
+extend schema
+  @link(url: "https://grafbase.com/extensions/grpc/0.2.0", import: ["@protoServices", "@protoEnums", "@protoMessages", "@grpcMethod"])
+  @link(url: "https://specs.grafbase.com/composite-schemas/v1", import: ["@key", "@derive", "@is", "@lookup"])
+  @protoServices(
+    definitions: [
+      {
+        name: "posts.api.v1.PostsAPIService"
+        methods: [
+          {
+            name: "CreatePost"
+            inputType: ".posts.api.v1.CreatePostRequest"
+            outputType: ".posts.api.v1.CreatePostResponse"
+          }
+          {
+            name: "GetPostsByAuthor"
+            inputType: ".posts.api.v1.GetPostsByAuthorRequest"
+            outputType: ".posts.api.v1.Posts"
+          }
+          {
+            name: "GetPostByID"
+            inputType: ".posts.api.v1.GetPostByIDRequest"
+            outputType: ".posts.api.v1.Post"
+          }
+          {
+            name: "GetPostsByIDs"
+            inputType: ".posts.api.v1.GetPostsByIDsRequest"
+            outputType: ".posts.api.v1.Posts"
+          }
+        ]
+      }
+    ]
+  )
+  @protoMessages(
+    definitions: [
+      {
+        name: ".posts.api.v1.CreatePostRequest"
+        fields: [
+          {
+            name: "description"
+            number: 1
+            repeated: false
+            type: "string"
+          }
+        ]
+      }
+      {
+        name: ".posts.api.v1.CreatePostResponse"
+        fields: [
+          {
+            name: "post_id"
+            number: 1
+            repeated: false
+            type: "int32"
+          }
+        ]
+      }
+      {
+        name: ".posts.api.v1.GetPostByIDRequest"
+        fields: [
+          {
+            name: "id"
+            number: 1
+            repeated: false
+            type: "int32"
+          }
+        ]
+      }
+      {
+        name: ".posts.api.v1.GetPostsByAuthorRequest"
+        fields: [
+          {
+            name: "skip"
+            number: 1
+            repeated: false
+            type: "int32"
+          }
+          {
+            name: "take"
+            number: 2
+            repeated: false
+            type: "int32"
+          }
+          {
+            name: "author_id"
+            number: 3
+            repeated: false
+            type: "int32"
+          }
+        ]
+      }
+      {
+        name: ".posts.api.v1.GetPostsByIDsRequest"
+        fields: [
+          {
+            name: "ids"
+            number: 1
+            repeated: true
+            type: "int32"
+          }
+        ]
+      }
+      {
+        name: ".posts.api.v1.Post"
+        fields: [
+          {
+            name: "id"
+            number: 1
+            repeated: false
+            type: "int32"
+          }
+          {
+            name: "author_id"
+            number: 2
+            repeated: false
+            type: "int32"
+          }
+          {
+            name: "description"
+            number: 3
+            repeated: false
+            type: "string"
+          }
+        ]
+      }
+      {
+        name: ".posts.api.v1.Posts"
+        fields: [
+          {
+            name: "count"
+            number: 1
+            repeated: false
+            type: "int32"
+          }
+          {
+            name: "posts"
+            number: 2
+            repeated: true
+            type: ".posts.api.v1.Post"
+          }
+        ]
+      }
+    ]
+  )
+
+type Query {
+  posts_api_v1_PostsAPIService_GetPostsByAuthor(input: posts_api_v1_GetPostsByAuthorRequestInput): posts_api_v1_Posts @grpcMethod(service: "posts.api.v1.PostsAPIService", method: "GetPostsByAuthor")
+  posts_api_v1_PostsAPIService_GetPostByID(input: posts_api_v1_GetPostByIDRequestInput @is(field: "{ id: id }")): posts_api_v1_Post @grpcMethod(service: "posts.api.v1.PostsAPIService", method: "GetPostByID") @lookup
+  posts_api_v1_PostsAPIService_GetPostsByIDs(input: posts_api_v1_GetPostsByIDsRequestInput): posts_api_v1_Posts @grpcMethod(service: "posts.api.v1.PostsAPIService", method: "GetPostsByIDs")
+}
+
+type Mutation {
+  posts_api_v1_PostsAPIService_CreatePost(input: posts_api_v1_CreatePostRequestInput): posts_api_v1_CreatePostResponse @grpcMethod(service: "posts.api.v1.PostsAPIService", method: "CreatePost")
+}
+
+"64 bit signed integer" scalar I64
+"64 bit unsigned integer" scalar U64
+
+input posts_api_v1_CreatePostRequestInput {
+  description: String
+}
+
+input posts_api_v1_GetPostByIDRequestInput {
+  id: Int
+}
+
+input posts_api_v1_GetPostsByAuthorRequestInput {
+  skip: Int
+  take: Int
+  author_id: Int
+}
+
+input posts_api_v1_GetPostsByIDsRequestInput {
+  ids: [Int!]
+}
+
+type posts_api_v1_CreatePostResponse {
+  post_id: Int!
+}
+
+type posts_api_v1_Post @key(fields: "id") {
+  id: Int!
+  author_id: Int!
+  description: String!
+  author_profile_preview: profiles_api_v1_ProfilePreview @derive @is(field: "{ id: author_id }")
+}
+
+type posts_api_v1_Posts {
+  count: Int!
+  posts: [posts_api_v1_Post!]
+}
+
+type profiles_api_v1_ProfilePreview @key(fields: "id") {
+  id: Int!
+}

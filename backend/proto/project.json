@@ -1,0 +1,18 @@
+{
+	"$schema": "../../node_modules/nx/schemas/project-schema.json",
+
+	"name": "proto",
+	"root": "backend/proto",
+	"projectType": "application",
+
+	"targets": {
+		"generate": {
+			"executor": "nx:run-commands",
+			"options": {
+				"cwd": "{projectRoot}",
+				"command": "buf generate"
+			},
+			"cache": true
+		}
+	}
+}

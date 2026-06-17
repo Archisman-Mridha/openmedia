@@ -1,4 +1,16 @@
 repos:
+  - repo: https://github.com/bufbuild/buf
+    rev: v1.70.0
+    hooks:
+      - id: buf-lint
+        name: Lint Protocol Buffer files.
+        language: system
+        language_version: default
+      - id: buf-format
+        name: Format Protocol Buffer files.
+        language: system
+        language_version: default
+
   - repo: https://github.com/biomejs/pre-commit
     rev: v2.4.16
     hooks:

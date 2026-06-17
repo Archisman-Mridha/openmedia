@@ -1,0 +1,175 @@
+extend schema
+  @link(url: "https://grafbase.com/extensions/grpc/0.2.0", import: ["@protoServices", "@protoEnums", "@protoMessages", "@grpcMethod"])
+  @link(url: "https://specs.grafbase.com/composite-schemas/v1", import: ["@key", "@is", "@lookup", "@require"])
+  @protoServices(
+    definitions: [
+      {
+        name: "profiles.api.v1.ProfilesAPIService"
+        methods: [
+          {
+            name: "GetProfilePreviewByID"
+            inputType: ".profiles.api.v1.GetProfilePreviewByIDRequest"
+            outputType: ".profiles.api.v1.ProfilePreview"
+          }
+          {
+            name: "GetProfileByID"
+            inputType: ".profiles.api.v1.GetProfileByIDRequest"
+            outputType: ".profiles.api.v1.Profile"
+          }
+          {
+            name: "SearchProfiles"
+            inputType: ".profiles.api.v1.SearchProfilesRequest"
+            outputType: ".profiles.api.v1.ProfilePreviews"
+          }
+        ]
+      }
+    ]
+  )
+  @protoMessages(
+    definitions: [
+      {
+        name: ".profiles.api.v1.GetProfileByIDRequest"
+        fields: [
+          {
+            name: "id"
+            number: 1
+            repeated: false
+            type: "int32"
+          }
+        ]
+      }
+      {
+        name: ".profiles.api.v1.GetProfilePreviewByIDRequest"
+        fields: [
+          {
+            name: "id"
+            number: 1
+            repeated: false
+            type: "int32"
+          }
+        ]
+      }
+      {
+        name: ".profiles.api.v1.Profile"
+        fields: [
+          {
+            name: "id"
+            number: 1
+            repeated: false
+            type: "int32"
+          }
+          {
+            name: "name"
+            number: 2
+            repeated: false
+            type: "string"
+          }
+          {
+            name: "username"
+            number: 3
+            repeated: false
+            type: "string"
+          }
+          {
+            name: "bio"
+            number: 4
+            repeated: false
+            type: "string"
+          }
+        ]
+      }
+      {
+        name: ".profiles.api.v1.ProfilePreview"
+        fields: [
+          {
+            name: "id"
+            number: 1
+            repeated: false
+            type: "int32"
+          }
+          {
+            name: "name"
+            number: 2
+            repeated: false
+            type: "string"
+          }
+          {
+            name: "username"
+            number: 3
+            repeated: false
+            type: "string"
+          }
+        ]
+      }
+      {
+        name: ".profiles.api.v1.ProfilePreviews"
+        fields: [
+          {
+            name: "count"
+            number: 1
+            repeated: false
+            type: "int32"
+          }
+          {
+            name: "profile_previews"
+            number: 2
+            repeated: true
+            type: ".profiles.api.v1.ProfilePreview"
+          }
+        ]
+      }
+      {
+        name: ".profiles.api.v1.SearchProfilesRequest"
+        fields: [
+          {
+            name: "query"
+            number: 1
+            repeated: false
+            type: "string"
+          }
+        ]
+      }
+    ]
+  )
+
+type Query {
+  profiles_api_v1_ProfilesAPIService_GetProfilePreviewByID(input: profiles_api_v1_GetProfilePreviewByIDRequestInput @is(field: "{ id: id }")): profiles_api_v1_ProfilePreview @grpcMethod(service: "profiles.api.v1.ProfilesAPIService", method: "GetProfilePreviewByID") @lookup
+  profiles_api_v1_ProfilesAPIService_GetProfileByID(input: profiles_api_v1_GetProfileByIDRequestInput @is(field: "{ id: id }")): profiles_api_v1_Profile @grpcMethod(service: "profiles.api.v1.ProfilesAPIService", method: "GetProfileByID") @lookup
+  profiles_api_v1_ProfilesAPIService_SearchProfiles(input: profiles_api_v1_SearchProfilesRequestInput): profiles_api_v1_ProfilePreviews @grpcMethod(service: "profiles.api.v1.ProfilesAPIService", method: "SearchProfiles")
+}
+
+"64 bit signed integer" scalar I64
+"64 bit unsigned integer" scalar U64
+
+input profiles_api_v1_GetProfileByIDRequestInput {
+  id: Int
+}
+
+input profiles_api_v1_GetProfilePreviewByIDRequestInput {
+  id: Int
+}
+
+input profiles_api_v1_SearchProfilesRequestInput {
+  query: String
+}
+
+type profiles_api_v1_Profile @key(fields: "id") {
+  id: Int!
+  name: String!
+  username: String!
+  bio: String
+  is_followee(input: String @require(field: "{ followee_id: id }"): String @grpcMethod(service: "followships.api.v1.FollowshipsAPIService", method: "FollowshipExists")
+  followship_counts(input: String @require(field: "{ profile_id: id }"): String @grpcMethod(service: "followships.api.v1.FollowshipsAPIService", method: "GetFollowshipCounts")
+  posts(input: String @require(field: "{ author_id: id }"): String @grpcMethod(service: "posts.api.v1.PostsAPIService", method: "GetPostsByAuthor")
+}
+
+type profiles_api_v1_ProfilePreview @key(fields: "id") {
+  id: Int!
+  name: String!
+  username: String!
+}
+
+type profiles_api_v1_ProfilePreviews {
+  count: Int!
+  profile_previews: [profiles_api_v1_ProfilePreview!]
+}

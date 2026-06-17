@@ -1,0 +1,25 @@
+version: v2
+
+lint:
+  except:
+    - RPC_RESPONSE_STANDARD_NAME
+    - RPC_REQUEST_RESPONSE_UNIQUE
+    - PACKAGE_NO_IMPORT_CYCLE
+
+modules:
+  - path: vendor/grafbase-options
+
+  - path: apis/auth
+    name: openmedia.io/apis/auth
+
+  - path: apis/profiles
+    name: openmedia.io/apis/profiles
+
+  - path: apis/followships
+    name: openmedia.io/apis/followships
+
+  - path: apis/posts
+    name: openmedia.io/apis/posts
+
+  - path: apis/feeds
+    name: openmedia.io/apis/feeds

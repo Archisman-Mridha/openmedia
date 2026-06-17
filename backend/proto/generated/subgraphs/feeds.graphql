@@ -1,0 +1,73 @@
+extend schema
+  @link(url: "https://grafbase.com/extensions/grpc/0.2.0", import: ["@protoServices", "@protoEnums", "@protoMessages", "@grpcMethod"])
+  @link(url: "https://specs.grafbase.com/composite-schemas/v1", import: ["@require"])
+  @protoServices(
+    definitions: [
+      {
+        name: "feeds.api.v1.FeedsAPIService"
+        methods: [
+          {
+            name: "GetFeed"
+            inputType: ".feeds.api.v1.GetFeedRequest"
+            outputType: ".feeds.api.v1.Feed"
+          }
+        ]
+      }
+    ]
+  )
+  @protoMessages(
+    definitions: [
+      {
+        name: ".feeds.api.v1.Feed"
+        fields: [
+          {
+            name: "count"
+            number: 1
+            repeated: false
+            type: "int32"
+          }
+          {
+            name: "post_ids"
+            number: 2
+            repeated: true
+            type: "int32"
+          }
+        ]
+      }
+      {
+        name: ".feeds.api.v1.GetFeedRequest"
+        fields: [
+          {
+            name: "skip"
+            number: 1
+            repeated: false
+            type: "int32"
+          }
+          {
+            name: "take"
+            number: 2
+            repeated: false
+            type: "int32"
+          }
+        ]
+      }
+    ]
+  )
+
+type Query {
+  feeds_api_v1_FeedsAPIService_GetFeed(input: feeds_api_v1_GetFeedRequestInput): feeds_api_v1_Feed @grpcMethod(service: "feeds.api.v1.FeedsAPIService", method: "GetFeed")
+}
+
+"64 bit signed integer" scalar I64
+"64 bit unsigned integer" scalar U64
+
+input feeds_api_v1_GetFeedRequestInput {
+  skip: Int
+  take: Int
+}
+
+type feeds_api_v1_Feed {
+  count: Int!
+  post_ids: [Int!]
+  posts(input: String @require(field: "{ ids: post_ids }"): String @grpcMethod(service: "posts.api.v1.PostsAPIService", method: "GetPostsByIDs")
+}

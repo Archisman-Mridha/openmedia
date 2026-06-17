@@ -1,3 +1,5 @@
+backend/generated
+
 infrastructure/kubernetes/manifests/charts/
 infrastructure/kubernetes/manifests/renderred/
 vendor/

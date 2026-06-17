@@ -8,6 +8,10 @@
       url = "github:cachix/devenv";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    dagger = {
+      url = "github:dagger/nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   nixConfig = {
@@ -21,6 +25,7 @@
       nixpkgs,
       systems,
       devenv,
+      dagger,
       ...
     }@inputs:
     let
@@ -33,6 +38,9 @@
           pkgs = import nixpkgs {
             inherit system;
             config.allowUnfree = true;
+          };
+          protoc-gen-grafbase-subgraph = pkgs.callPackage ./nix/pkgs/protoc-gen-grafbase-subgraph.nix {
+            inherit system;
           };
         in
         {
@@ -49,7 +57,17 @@
                 cachix.enable = true;
 
                 packages = with pkgs; [
+                  protobuf
+                  buf
+                  protoc-gen-grafbase-subgraph
+
                   bun
+
+                  go
+                  golangci-lint
+
+                  dagger.packages.${system}.dagger
+                  renovate
 
                   terraform
                   terragrunt

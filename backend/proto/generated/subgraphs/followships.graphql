@@ -1,0 +1,318 @@
+extend schema
+  @link(url: "https://grafbase.com/extensions/grpc/0.2.0", import: ["@protoServices", "@protoEnums", "@protoMessages", "@grpcMethod"])
+  @link(url: "https://specs.grafbase.com/composite-schemas/v1", import: ["@key", "@derive", "@is"])
+  @protoServices(
+    definitions: [
+      {
+        name: "followships.api.v1.FollowshipsAPIService"
+        methods: [
+          {
+            name: "GetFollowshipCounts"
+            inputType: ".followships.api.v1.GetFollowshipCountsRequest"
+            outputType: ".followships.api.v1.FollowshipCounts"
+          }
+          {
+            name: "Follow"
+            inputType: ".followships.api.v1.FollowRequest"
+            outputType: ".google.protobuf.Empty"
+          }
+          {
+            name: "Unfollow"
+            inputType: ".followships.api.v1.UnfollowRequest"
+            outputType: ".google.protobuf.Empty"
+          }
+          {
+            name: "GetFollowers"
+            inputType: ".followships.api.v1.GetFollowersRequest"
+            outputType: ".followships.api.v1.Followers"
+          }
+          {
+            name: "GetFollowees"
+            inputType: ".followships.api.v1.GetFolloweesRequest"
+            outputType: ".followships.api.v1.Followees"
+          }
+          {
+            name: "FollowshipExists"
+            inputType: ".followships.api.v1.FollowshipExistsRequest"
+            outputType: ".google.protobuf.BoolValue"
+          }
+        ]
+      }
+    ]
+  )
+  @protoMessages(
+    definitions: [
+      {
+        name: ".followships.api.v1.FollowRequest"
+        fields: [
+          {
+            name: "followee_id"
+            number: 1
+            repeated: false
+            type: "int32"
+          }
+        ]
+      }
+      {
+        name: ".followships.api.v1.Followee"
+        fields: [
+          {
+            name: "id"
+            number: 1
+            repeated: false
+            type: "int32"
+          }
+        ]
+      }
+      {
+        name: ".followships.api.v1.Followees"
+        fields: [
+          {
+            name: "count"
+            number: 1
+            repeated: false
+            type: "int32"
+          }
+          {
+            name: "followees"
+            number: 2
+            repeated: true
+            type: ".followships.api.v1.Followee"
+          }
+        ]
+      }
+      {
+        name: ".followships.api.v1.Follower"
+        fields: [
+          {
+            name: "id"
+            number: 1
+            repeated: false
+            type: "int32"
+          }
+        ]
+      }
+      {
+        name: ".followships.api.v1.Followers"
+        fields: [
+          {
+            name: "count"
+            number: 1
+            repeated: false
+            type: "int32"
+          }
+          {
+            name: "followers"
+            number: 2
+            repeated: true
+            type: ".followships.api.v1.Follower"
+          }
+        ]
+      }
+      {
+        name: ".followships.api.v1.FollowshipCounts"
+        fields: [
+          {
+            name: "follower_count"
+            number: 1
+            repeated: false
+            type: "int32"
+          }
+          {
+            name: "following_count"
+            number: 2
+            repeated: false
+            type: "int32"
+          }
+        ]
+      }
+      {
+        name: ".followships.api.v1.FollowshipExistsRequest"
+        fields: [
+          {
+            name: "follower_id"
+            number: 1
+            repeated: false
+            type: "int32"
+          }
+          {
+            name: "followee_id"
+            number: 2
+            repeated: false
+            type: "int32"
+          }
+        ]
+      }
+      {
+        name: ".followships.api.v1.GetFolloweesRequest"
+        fields: [
+          {
+            name: "skip"
+            number: 1
+            repeated: false
+            type: "int32"
+          }
+          {
+            name: "take"
+            number: 2
+            repeated: false
+            type: "int32"
+          }
+          {
+            name: "follower_id"
+            number: 3
+            repeated: false
+            type: "int32"
+          }
+        ]
+      }
+      {
+        name: ".followships.api.v1.GetFollowersRequest"
+        fields: [
+          {
+            name: "skip"
+            number: 1
+            repeated: false
+            type: "int32"
+          }
+          {
+            name: "take"
+            number: 2
+            repeated: false
+            type: "int32"
+          }
+          {
+            name: "followee_id"
+            number: 3
+            repeated: false
+            type: "int32"
+          }
+        ]
+      }
+      {
+        name: ".followships.api.v1.GetFollowshipCountsRequest"
+        fields: [
+          {
+            name: "profile_id"
+            number: 1
+            repeated: false
+            type: "int32"
+          }
+        ]
+      }
+      {
+        name: ".followships.api.v1.UnfollowRequest"
+        fields: [
+          {
+            name: "followee_id"
+            number: 1
+            repeated: false
+            type: "int32"
+          }
+        ]
+      }
+      {
+        name: ".google.protobuf.Empty"
+        fields: [
+        ]
+      }
+      {
+        name: ".google.protobuf.BoolValue"
+        fields: [
+          {
+            name: "value"
+            number: 1
+            repeated: false
+            type: "bool"
+          }
+        ]
+      }
+    ]
+  )
+
+type Query {
+  followships_api_v1_FollowshipsAPIService_GetFollowshipCounts(input: followships_api_v1_GetFollowshipCountsRequestInput): followships_api_v1_FollowshipCounts @grpcMethod(service: "followships.api.v1.FollowshipsAPIService", method: "GetFollowshipCounts")
+  followships_api_v1_FollowshipsAPIService_GetFollowers(input: followships_api_v1_GetFollowersRequestInput): followships_api_v1_Followers @grpcMethod(service: "followships.api.v1.FollowshipsAPIService", method: "GetFollowers")
+  followships_api_v1_FollowshipsAPIService_GetFollowees(input: followships_api_v1_GetFolloweesRequestInput): followships_api_v1_Followees @grpcMethod(service: "followships.api.v1.FollowshipsAPIService", method: "GetFollowees")
+  followships_api_v1_FollowshipsAPIService_FollowshipExists(input: followships_api_v1_FollowshipExistsRequestInput): Boolean @grpcMethod(service: "followships.api.v1.FollowshipsAPIService", method: "FollowshipExists")
+}
+
+type Mutation {
+  followships_api_v1_FollowshipsAPIService_Follow(input: followships_api_v1_FollowRequestInput): EmptyObject @grpcMethod(service: "followships.api.v1.FollowshipsAPIService", method: "Follow")
+  followships_api_v1_FollowshipsAPIService_Unfollow(input: followships_api_v1_UnfollowRequestInput): EmptyObject @grpcMethod(service: "followships.api.v1.FollowshipsAPIService", method: "Unfollow")
+}
+
+"64 bit signed integer" scalar I64
+"64 bit unsigned integer" scalar U64
+
+input followships_api_v1_FollowRequestInput {
+  followee_id: Int
+}
+
+input followships_api_v1_FollowshipExistsRequestInput {
+  follower_id: Int
+  followee_id: Int
+}
+
+input followships_api_v1_GetFolloweesRequestInput {
+  skip: Int
+  take: Int
+  follower_id: Int
+}
+
+input followships_api_v1_GetFollowersRequestInput {
+  skip: Int
+  take: Int
+  followee_id: Int
+}
+
+input followships_api_v1_GetFollowshipCountsRequestInput {
+  profile_id: Int
+}
+
+input followships_api_v1_UnfollowRequestInput {
+  followee_id: Int
+}
+
+type followships_api_v1_Followee {
+  id: Int!
+  profile_preview: profiles_api_v1_ProfilePreview @derive @is(field: "{ id: id }")
+}
+
+type followships_api_v1_Followees {
+  count: Int!
+  followees: [followships_api_v1_Followee!]
+}
+
+type followships_api_v1_Follower {
+  id: Int!
+  profile_preview: profiles_api_v1_ProfilePreview @derive @is(field: "{ id: id }")
+}
+
+type followships_api_v1_Followers {
+  count: Int!
+  followers: [followships_api_v1_Follower!]
+}
+
+type followships_api_v1_FollowshipCounts {
+  follower_count: Int!
+  following_count: Int!
+}
+
+"An empty object " scalar EmptyObject
+
+"""
+A generic empty message that you can re-use to avoid defining duplicated
+ empty messages in your APIs. A typical example is to use it as the request
+ or the response type of an API method. For instance:
+
+     service Foo {
+       rpc Bar(google.protobuf.Empty) returns (google.protobuf.Empty);
+     }
+"""
+type google_protobuf_Empty {
+}
+
+type profiles_api_v1_ProfilePreview @key(fields: "id") {
+  id: Int!
+}

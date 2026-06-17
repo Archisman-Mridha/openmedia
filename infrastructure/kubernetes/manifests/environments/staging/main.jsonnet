@@ -44,9 +44,9 @@ local clusterName = 'staging.openmedia',
 (import 'kubevela.libsonnet') +
 (import 'openkruise.libsonnet') +
 
-(import 'cockroachdb.libsonnet') +
+(import 'cloudnative-pg.libsonnet') +
 (import 'atlasgo.libsonnet') +
-(import 'strimzi.libsonnet') +
+(import 'redpanda.libsonnet') +
 (import 'meilisearch.libsonnet') +
 (import 'dragonfly.libsonnet') +
 
