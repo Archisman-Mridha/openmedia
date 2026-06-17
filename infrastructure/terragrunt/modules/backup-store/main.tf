@@ -87,11 +87,11 @@ resource "aws_s3_bucket_versioning" "backup_store" {
 // S3 Lifecycle helps you store objects cost effectively throughout their lifecycle by transitioning
 // them to lower-cost storage classes, or, deleting expired objects on your behalf.
 
-resource "aws_s3_bucket_lifecycle_configuration" "velero_backup_store" {
+resource "aws_s3_bucket_lifecycle_configuration" "velero_backups" {
   bucket = aws_s3_bucket.backup_store.id
 
   rule {
-    id     = "velero-backup"
+    id     = "velero-backups"
     status = "Enabled"
 
     filter {
@@ -131,3 +131,4 @@ resource "aws_s3_bucket_lifecycle_configuration" "velero_backup_store" {
   }
 }
 
+// TODO : Consider other types of backups, and the S3 lifecycle policies required for them.

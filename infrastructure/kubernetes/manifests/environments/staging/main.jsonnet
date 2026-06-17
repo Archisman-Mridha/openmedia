@@ -14,15 +14,13 @@ local clusterName = 'staging.openmedia',
 
 // For networking.
 (import 'cilium.libsonnet')(k8sServiceHost) +
-(import 'envoy-gateway.libsonnet') +
 (import 'cert-manager.libsonnet')(email, clusterName) +
 (import 'external-dns.libsonnet')(email) +
 
 // For monitoring.
 (import 'monitoring/node-problem-detector.libsonnet') +
-(import 'monitoring/fluent-bit.libsonnet') +
 (import 'monitoring/kube-prometheus-stack.libsonnet') +
-(import 'monitoring/otel-collector.libsonnet') +
+(import 'monitoring/otel-operator.libsonnet') +
 (import 'monitoring/openobserve.libsonnet')(openobserveBucketName) +
 (import 'monitoring/opencost.libsonnet') +
 
@@ -33,7 +31,6 @@ local clusterName = 'staging.openmedia',
 
 // For auto-scaling.
 (import 'cluster-autoscaler.libsonnet') +
-(import 'keda.libsonnet') +
 
 // For GitOps.
 (import 'gitops/argo-cd.libsonnet')(argoCDSourceRepo) +
@@ -44,7 +41,7 @@ local clusterName = 'staging.openmedia',
 (import 'kubevela.libsonnet') +
 (import 'openkruise.libsonnet') +
 
-(import 'cockroachdb.libsonnet') +
+(import 'cloudnative-pg.libsonnet') +
 (import 'atlasgo.libsonnet') +
 (import 'strimzi.libsonnet') +
 (import 'meilisearch.libsonnet') +
