@@ -10,6 +10,10 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
+    command:
+      - "postgres"
+      - "-c"
+      - "wal_level=logical"
     hostname: postgres
     ports:
       - "5432:5432"
@@ -95,6 +99,7 @@ services:
       ZO_ROOT_USER_PASSWORD: ${OPENOBSERVE_PASSWORD}
     ports:
       - "5080:5080"
+      - "5081:5081"
     healthcheck:
       test:
         - "CMD-SHELL"

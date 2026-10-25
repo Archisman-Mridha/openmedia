@@ -29,8 +29,8 @@ export class GetPostsByAuthorHandler implements IQueryHandler<GetPostsByAuthorQu
 		const [posts, count] = await this.postsRepository.findAndCount({
 			where: { authorID: input.authorID },
 
-			skip: input.skip,
-			take: input.take
+			skip: input.offset,
+			take: input.limit
 		})
 
 		return { posts, count }

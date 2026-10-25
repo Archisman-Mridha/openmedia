@@ -1,4 +1,4 @@
-import { type ExecutionContext, Injectable } from "@nestjs/common"
+import { type ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common"
 import { ConfigService } from "@nestjs/config"
 import { Reflector } from "@nestjs/core"
 import { QueryBus } from "@nestjs/cqrs"
@@ -89,6 +89,7 @@ export class JWTAuthStrategy extends PassportStrategy(Strategy) {
 		// Ensure that the user exists.
 		const id = jwtPayload.sub
 		const user = await this.queryBus.execute(new GetUserQuery({ where: { id } }))
+		if (!user) throw new UnauthorizedException()
 
 		return user
 	}

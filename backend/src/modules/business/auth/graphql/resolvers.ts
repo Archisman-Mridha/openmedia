@@ -4,6 +4,7 @@ import { Mutation, Query, Resolver } from "@nestjs/graphql"
 import { Args } from "@openmedia/backend/decorators/args"
 import { CurrentUser } from "@openmedia/backend/decorators/current-user"
 import { PublicRoute } from "@openmedia/backend/decorators/public-route"
+import { signupArgsValidator } from "@openmedia/packages/validators"
 import { CreateUserCommand } from "../../users/commands/create-user"
 import { UserEntity } from "../../users/entity"
 import { SigninQuery } from "../queries/signin"
@@ -20,12 +21,14 @@ export class AuthResolver {
 
 	@PublicRoute()
 	@Mutation(() => SigninOutput)
-	async signup(@Args() args: SignupArgs) {
+	async signup(@Args(signupArgsValidator) args: SignupArgs) {
 		const user = await this.commandBus.execute(new CreateUserCommand(args))
 
 		return this.queryBus.execute(new SigninQuery(user))
 	}
 
+	// We don't need to run the signin args validator here,
+	// since the args are already used to lookup the corresponding user entity in the database.
 	@PublicRoute()
 	@UseGuards(LocalAuthGuard)
 	@Query(() => SigninOutput)

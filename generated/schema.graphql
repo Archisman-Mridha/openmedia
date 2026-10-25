@@ -1,0 +1,141 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type SigninOutput {
+	userID: ID!
+	accessToken: String!
+}
+
+type Follower {
+	id: Int!
+	profilePreview: ProfilePreview!
+}
+
+type Followers {
+	count: Int!
+	followers: [Follower!]!
+}
+
+type Followee {
+	id: Int!
+	profilePreview: ProfilePreview!
+}
+
+type Followees {
+	count: Int!
+	followees: [Followee!]!
+}
+
+type FollowshipCounts {
+	followerCount: Int!
+	followeeCount: Int!
+}
+
+type Profile {
+	id: ID!
+	name: String!
+	username: String!
+	bio: String
+	isFollowee: Boolean!
+	followshipCounts: FollowshipCounts!
+	posts: [Post!]!
+}
+
+type ProfilePreview {
+	id: ID!
+	name: String!
+	username: String!
+}
+
+type ProfilePreviews {
+	count: Int!
+	profilePreviews: [ProfilePreview!]!
+}
+
+type Post {
+	id: ID!
+	authorID: Int!
+	description: String
+	authorProfilePreview: ProfilePreview!
+}
+
+type Posts {
+	count: Int!
+	posts: [Post!]!
+}
+
+type Query {
+	ping: String!
+	signin(args: SigninArgs!): SigninOutput!
+	searchProfiles(args: SearchProfilesArgs!): ProfilePreviews!
+	getProfileByID(args: GetProfileByIDArgs!): Profile!
+	getFollowers(args: GetFollowersArgs!): Followers!
+	getFollowees(args: GetFolloweesArgs!): Followees!
+	getPostsByAuthor(args: GetPostsByAuthorArgs!): Posts!
+	getPostByID(args: GetPostArgs!): Post!
+	getFeed(offset: Int! = 0, limit: Int! = 25): [Post!]!
+}
+
+input SigninArgs {
+	email: String!
+	password: String!
+}
+
+input SearchProfilesArgs {
+	offset: Int! = 0
+	limit: Int! = 25
+	query: String!
+}
+
+input GetProfileByIDArgs {
+	id: Int!
+}
+
+input GetFollowersArgs {
+	offset: Int! = 0
+	limit: Int! = 25
+	followeeID: Int!
+}
+
+input GetFolloweesArgs {
+	offset: Int! = 0
+	limit: Int! = 25
+	followerID: Int!
+}
+
+input GetPostsByAuthorArgs {
+	offset: Int! = 0
+	limit: Int! = 25
+	authorID: Int!
+}
+
+input GetPostArgs {
+	id: Int!
+}
+
+type Mutation {
+	signup(args: SignupArgs!): SigninOutput!
+	follow(args: CreateFollowshipArgs!): Boolean!
+	unfollow(args: DeleteFollowshipArgs!): Boolean!
+	createPost(args: CreatePostArgs!): Float!
+}
+
+input SignupArgs {
+	name: String!
+	username: String!
+	email: String!
+	password: String!
+}
+
+input CreateFollowshipArgs {
+	followeeID: Int!
+}
+
+input DeleteFollowshipArgs {
+	followeeID: Int!
+}
+
+input CreatePostArgs {
+	description: String
+}

@@ -18,10 +18,14 @@ export class LocalAuthStrategy extends PassportStrategy(Strategy) {
 	async validate(email: string, password: string): Promise<UserEntity> {
 		// Ensure that the user exists.
 		const user = await this.queryBus.execute(new GetUserQuery({ where: { email } }))
+		if (!user) throw new UnauthorizedException("Incorrect email or password")
 
 		// Ensure that the provided password is correct.
 		const isPasswordCorrect = await bcrypt.compare(password, user.password)
-		if (!isPasswordCorrect) throw new UnauthorizedException("incorrect password")
+		if (!isPasswordCorrect) throw new UnauthorizedException("Incorrect email or password")
+
+		// NOTE : Notice that in the above error messages, we don't say that an account with the given
+		//        email doesn't exist, or password is incorrect.
 
 		return user
 	}

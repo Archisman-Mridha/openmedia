@@ -1,5 +1,5 @@
 import { Field, ID, Int, ObjectType } from "@nestjs/graphql"
-import { POST_DESCRIPTION_MAX_LENGTH } from "@openmedia/backend/validators/validators"
+import { POST_DESCRIPTION_MAX_LENGTH } from "@openmedia/packages/validators"
 import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm"
 
 @ObjectType({ isAbstract: true })
@@ -10,7 +10,7 @@ export class PostEntity {
 	id: number
 
 	@Field(() => Int)
-	@Index()
+	@Index("posts_author_id_key")
 	@Column({ name: "author_id", type: "integer" })
 	authorID: number
 

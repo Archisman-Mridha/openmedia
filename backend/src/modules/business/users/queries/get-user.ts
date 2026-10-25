@@ -1,10 +1,9 @@
-import { UnauthorizedException } from "@nestjs/common"
 import { type IQueryHandler, Query, QueryHandler } from "@nestjs/cqrs"
 import { InjectRepository } from "@nestjs/typeorm"
 import { FindOneOptions, Repository } from "typeorm"
 import { UserEntity } from "../entity"
 
-export class GetUserQuery extends Query<UserEntity> {
+export class GetUserQuery extends Query<UserEntity | null> {
 	constructor(public readonly query: FindOneOptions<UserEntity>) {
 		super()
 	}
@@ -17,10 +16,7 @@ export class GetUserHandler implements IQueryHandler<GetUserQuery> {
 		private readonly usersRepository: Repository<UserEntity>
 	) {}
 
-	async execute(query: GetUserQuery): Promise<UserEntity> {
-		const user = await this.usersRepository.findOne(query.query)
-		if (!user) throw new UnauthorizedException("user not found")
-
-		return user
+	execute(query: GetUserQuery): Promise<UserEntity | null> {
+		return this.usersRepository.findOne(query.query)
 	}
 }

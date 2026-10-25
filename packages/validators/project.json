@@ -1,0 +1,19 @@
+{
+	"name": "validators",
+	"$schema": "../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "validators/src",
+	"projectType": "library",
+	"targets": {
+		"build": {
+			"executor": "@nx/js:swc",
+			"outputs": ["{options.outputPath}"],
+			"options": {
+				"outputPath": "dist/validators",
+				"main": "validators/src/index.ts",
+				"tsConfig": "validators/tsconfig.lib.json",
+				"assets": ["validators/*.md"]
+			}
+		}
+	},
+	"tags": []
+}

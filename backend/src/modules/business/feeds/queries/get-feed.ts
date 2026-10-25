@@ -1,6 +1,6 @@
 import { type IQueryHandler, Query, QueryHandler } from "@nestjs/cqrs"
 import { InjectRepository } from "@nestjs/typeorm"
-import { type PaginatedInput, type PaginatedOutput } from "@openmedia/backend/utils/pagination"
+import { type PaginatedInput } from "@openmedia/backend/utils/pagination"
 import { Repository } from "typeorm"
 import { FeedEntity } from "../entity"
 
@@ -8,7 +8,7 @@ export interface GetFeedInput extends PaginatedInput {
 	userID: number
 }
 
-export interface GetFeedOutput extends PaginatedOutput {
+export interface GetFeedOutput {
 	postIDs: Array<number>
 }
 
@@ -26,17 +26,16 @@ export class GetFeedHandler implements IQueryHandler<GetFeedQuery> {
 	) {}
 
 	async execute({ input }: GetFeedQuery): Promise<GetFeedOutput> {
-		const [rows, count] = await this.feedRepository.findAndCount({
+		const rows = await this.feedRepository.find({
 			where: { consumerID: input.userID },
 			order: { postCreatedAt: "DESC" },
 			select: { postID: true },
 
-			skip: input.skip,
-			take: input.take
+			skip: input.offset,
+			take: input.limit
 		})
 
 		return {
-			count,
 			postIDs: rows.map((row) => row.postID)
 		}
 	}

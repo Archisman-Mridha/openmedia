@@ -6,7 +6,7 @@ export const CurrentUser = createParamDecorator(
 		const graphQLExecutionContext = GqlExecutionContext.create(executionContext)
 
 		const user = graphQLExecutionContext.getContext().req.user
-		if (!user) throw UnauthorizedException
+		if (!user) throw new UnauthorizedException()
 
 		return user
 	}

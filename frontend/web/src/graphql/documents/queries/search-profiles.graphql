@@ -1,0 +1,8 @@
+query SearchProfiles($args: SearchProfilesArgs!) {
+	searchProfiles(args: $args) {
+		count
+		profilePreviews {
+			...ProfilePreview
+		}
+	}
+}

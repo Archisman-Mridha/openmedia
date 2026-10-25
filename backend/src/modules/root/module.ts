@@ -93,7 +93,7 @@ import { PingModule } from "../ping/module"
 					ttl: null
 				},
 
-				autoSchemaFile: true,
+				autoSchemaFile: isDevelopmentEnvironment ? "./generated/schema.graphql" : true,
 
 				introspection: true,
 				playground: false,

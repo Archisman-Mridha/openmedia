@@ -1,5 +1,5 @@
 import { Field, ID, ObjectType } from "@nestjs/graphql"
-import { NAME_MAX_LENGTH, USERNAME_MAX_LENGTH } from "@openmedia/backend/validators/validators"
+import { NAME_MAX_LENGTH, USERNAME_MAX_LENGTH } from "@openmedia/packages/validators"
 import * as bcrypt from "bcrypt"
 import { Exclude } from "class-transformer"
 import { BeforeInsert, Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm"
@@ -21,12 +21,15 @@ export class UserEntity {
 	@Column({ type: "varchar", length: NAME_MAX_LENGTH })
 	name: string
 
-	@Index({ unique: true })
+	// Check schema.sql. We have used the UNIQUE modifier when declaring the column.
+	// Postgres generates a unique constraint with the name using the following format :
+	// <table>_<column>_key.
+	@Index("users_username_key", { unique: true })
 	@Field()
 	@Column({ type: "varchar", length: USERNAME_MAX_LENGTH })
 	username: string
 
-	@Index({ unique: true })
+	@Index("users_email_key", { unique: true })
 	@Field()
 	@Column({ type: "varchar", length: EMAIL_MAX_LENGTH })
 	email: string

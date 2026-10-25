@@ -13,7 +13,7 @@ export class FeedEntity {
 	@Column({ name: "post_id", type: "integer" })
 	postID: number
 
-	@Index()
+	@Index("feeds_post_author_id_key")
 	@Column({ name: "post_author_id", type: "integer" })
 	postAuthorID: number
 

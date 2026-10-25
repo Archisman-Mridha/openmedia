@@ -1,5 +1,7 @@
-local /* clusterName = 'development.openmedia', */
-      k8sServiceHost = 'k3d-development.openmedia-serverlb';
+local clusterName = 'development.openmedia',
+      k8sServiceHost = 'localhost',
 
-// For networking.
-(import 'cilium.libsonnet')(k8sServiceHost)
+      argoCDSourceRepo = 'https://github.com/Archisman-Mridha/openmedia';
+
+// Networking and Ingress related.
+(import 'networking/cilium.libsonnet')(k8sServiceHost)

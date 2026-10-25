@@ -1,0 +1,3 @@
+mutation Unfollow($args: DeleteFollowshipArgs!) {
+	unfollow(args: $args)
+}

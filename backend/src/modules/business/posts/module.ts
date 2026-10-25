@@ -5,6 +5,7 @@ import { PostEntity } from "./entity"
 import { PostsResolver } from "./graphql/resolvers"
 import { GetPostByIDHandler } from "./queries/get-post-by-id"
 import { GetPostsByAuthorHandler } from "./queries/get-posts-by-author"
+import { GetPostsByIDsHandler } from "./queries/get-posts-by-ids"
 
 @Module({
 	imports: [TypeOrmModule.forFeature([PostEntity])],
@@ -16,7 +17,8 @@ import { GetPostsByAuthorHandler } from "./queries/get-posts-by-author"
 
 		// Queries.
 		GetPostsByAuthorHandler,
-		GetPostByIDHandler
+		GetPostByIDHandler,
+		GetPostsByIDsHandler
 	]
 })
 export class PostsModule {}

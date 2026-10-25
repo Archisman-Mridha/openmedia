@@ -1,0 +1,16 @@
+query GetProfileByID($args: GetProfileByIDArgs!) {
+	getProfileByID(args: $args) {
+		id
+		name
+		username
+		bio
+		isFollowee
+		followshipCounts {
+			followerCount
+			followeeCount
+		}
+		posts {
+			...Post
+		}
+	}
+}

@@ -6,6 +6,15 @@
 	"projectType": "application",
 
 	"targets": {
+		"vendor": {
+			"executor": "nx:run-commands",
+			"options": {
+				"cwd": "{projectRoot}",
+				"command": "make vendor"
+			},
+			"cache": true
+		},
+
 		"render": {
 			"executor": "nx:run-commands",
 			"options": {

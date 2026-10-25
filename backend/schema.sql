@@ -77,7 +77,7 @@ CREATE TABLE posts (
 
   author_id INTEGER NOT NULL,
 
-  description VARCHAR(150) NOT NULL
+  description VARCHAR(300) NOT NULL
 );
 
 CREATE INDEX CONCURRENTLY author_posts_index ON posts (author_id);

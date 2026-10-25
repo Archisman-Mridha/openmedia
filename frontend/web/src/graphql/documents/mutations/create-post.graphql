@@ -1,0 +1,3 @@
+mutation CreatePost($args: CreatePostArgs!) {
+	createPost(args: $args)
+}

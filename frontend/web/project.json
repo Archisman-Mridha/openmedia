@@ -1,0 +1,24 @@
+{
+	"name": "web",
+	"$schema": "../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "frontend/web",
+	"projectType": "application",
+	"tags": [],
+	"// targets": "to see all targets run: nx show project web --web",
+	"targets": {
+		"graphql-codegen": {
+			"executor": "nx:run-commands",
+			"options": {
+				"command": "graphql-codegen --config codegen.ts",
+				"cwd": "frontend/web"
+			},
+			"cache": true,
+			"inputs": [
+				"{workspaceRoot}/generated/schema.graphql",
+				"{projectRoot}/codegen.ts",
+				"{projectRoot}/src/**/*"
+			],
+			"outputs": ["{projectRoot}/src/lib/graphql"]
+		}
+	}
+}

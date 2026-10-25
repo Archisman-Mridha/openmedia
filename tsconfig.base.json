@@ -9,7 +9,9 @@
 		"module": "esnext",
 		"moduleResolution": "bundler",
 		"paths": {
-			"@openmedia/backend/*": ["./backend/src/*"]
+			"@openmedia/backend/*": ["./backend/src/*"],
+			"@openmedia/web/*": ["./frontend/web/*"],
+			"@openmedia/packages/validators": ["./packages/validators/src/index.ts"]
 		},
 		"rootDir": ".",
 		"skipDefaultLibCheck": true,

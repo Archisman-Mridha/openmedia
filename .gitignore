@@ -17,6 +17,7 @@ vendor/
 
 # Build outputs.
 dist/
+tsconfig.tsbuildinfo
 
 # OS related.
 .DS_Store
@@ -37,3 +38,7 @@ terraform.tfstate.*
 # Kubernetes related.
 charts/
 kubeconfig.yaml
+
+# Next.js
+.next
+out

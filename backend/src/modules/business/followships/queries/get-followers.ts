@@ -28,9 +28,10 @@ export class GetFollowersHandler implements IQueryHandler<GetFollowersQuery> {
 	async execute({ input }: GetFollowersQuery): Promise<GetFollowersOutput> {
 		const [followships, count] = await this.followshipsRepository.findAndCount({
 			where: { followeeID: input.followeeID },
+			order: { id: "DESC" },
 
-			skip: input.skip,
-			take: input.take
+			skip: input.offset,
+			take: input.limit
 		})
 
 		const followerIDs = followships.map((followship) => followship.followerID)

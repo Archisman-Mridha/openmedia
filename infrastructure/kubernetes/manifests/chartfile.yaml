@@ -42,6 +42,22 @@ repositories:
     url: https://openkruise.github.io/charts/
   - name: atlas-operator
     url: oci://ghcr.io/ariga/charts
+  - name: redpanda
+    url: https://charts.redpanda.com
+  - name: jkroepke
+    url: https://jkroepke.github.io/helm-charts/
+  - name: autoscaler
+    url: https://kubernetes.github.io/autoscaler
+  - name: harbor
+    url: https://helm.goharbor.io
+  - name: meilisearch
+    url: https://meilisearch.github.io/meilisearch-kubernetes
+  - name: kubevela
+    url: https://kubevela.github.io/charts
+  - name: crossview
+    url: https://crossplane-contrib.github.io/crossview
+  - name: crossplane
+    url: https://charts.crossplane.io/stable
 requires:
   - chart: cilium/cilium
     version: 1.19.4
@@ -83,4 +99,18 @@ requires:
     version: 1.9.0-alpha3
   - chart: atlas-operator/atlas-operator
     version: 0.7.37
+  - chart: jkroepke/amazon-eks-pod-identity-webhook
+    version: 2.6.5
+  - chart: autoscaler/cluster-autoscaler
+    version: 9.59.0
+  - chart: harbor/harbor
+    version: 1.19.1
+  - chart: meilisearch/meilisearch
+    version: 0.35.0
+  - chart: kubevela/vela-core
+    version: 1.11.0
+  - chart: crossview/crossview
+    version: 3.9.0-rc.4
+  - chart: crossplane/crossplane
+    version: 2.3.4
 version: 1

@@ -24,9 +24,9 @@ export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
 	) {}
 
 	async execute({ input }: CreateUserCommand): Promise<UserEntity> {
-		let user = this.usersRepository.create(input)
-		user = await this.usersRepository.save(user)
+		const user = this.usersRepository.create(input)
 
-		return user
+		// TODO : Detect duplicate email and username.
+		return await this.usersRepository.save(user)
 	}
 }

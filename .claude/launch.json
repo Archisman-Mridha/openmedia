@@ -1,0 +1,23 @@
+{
+	"version": "0.0.1",
+	"configurations": [
+		{
+			"name": "backend",
+			"runtimeExecutable": "bun",
+			"runtimeArgs": ["run", "nx", "serve", "backend"],
+			"port": 4000
+		},
+		{
+			"name": "web",
+			"runtimeExecutable": "bun",
+			"runtimeArgs": ["run", "nx", "dev", "web"],
+			"port": 3000
+		},
+		{
+			"name": "web-mock",
+			"runtimeExecutable": "bun",
+			"runtimeArgs": ["run", "nx", "dev:mock", "web"],
+			"port": 3000
+		}
+	]
+}

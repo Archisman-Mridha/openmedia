@@ -1,0 +1,5 @@
+fragment ProfilePreview on ProfilePreview {
+	id
+	name
+	username
+}

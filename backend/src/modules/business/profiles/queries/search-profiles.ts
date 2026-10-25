@@ -33,8 +33,8 @@ export class SearchProfilesHandler implements IQueryHandler<SearchProfilesQuery>
 			.search(input.query, {
 				attributesToSearchOn: ["name", "username"],
 
-				offset: input.skip,
-				limit: input.take
+				offset: input.offset,
+				limit: input.limit
 			})
 
 		const profilePreviews = hits.map((hit: ProfilePreview) => ({

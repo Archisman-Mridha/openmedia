@@ -1,5 +1,5 @@
 import { Field, ID, ObjectType } from "@nestjs/graphql"
-import { NAME_MAX_LENGTH, USERNAME_MAX_LENGTH } from "@openmedia/backend/validators/validators"
+import { NAME_MAX_LENGTH, USERNAME_MAX_LENGTH } from "@openmedia/packages/validators"
 import { IsAlpha } from "class-validator"
 import { Column, Entity, Index, PrimaryColumn } from "typeorm"
 
@@ -17,7 +17,7 @@ export class ProfileEntity {
 	@Column({ type: "varchar", length: NAME_MAX_LENGTH })
 	name: string
 
-	@Index({ unique: true })
+	@Index("profiles_username_key", { unique: true })
 	@Field()
 	@Column({ type: "varchar", length: USERNAME_MAX_LENGTH })
 	username: string

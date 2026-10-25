@@ -1,0 +1,5 @@
+query GetFeed($offset: Int!, $limit: Int!) {
+	getFeed(offset: $offset, limit: $limit) {
+		...Post
+	}
+}

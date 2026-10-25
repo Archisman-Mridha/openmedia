@@ -1,0 +1,10 @@
+query GetFollowers($args: GetFollowersArgs!) {
+	getFollowers(args: $args) {
+		count
+		followers {
+			profilePreview {
+				...ProfilePreview
+			}
+		}
+	}
+}
