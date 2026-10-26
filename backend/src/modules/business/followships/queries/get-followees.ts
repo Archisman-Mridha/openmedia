@@ -1,16 +1,14 @@
 import { EntityRepository } from "@mikro-orm/core"
 import { InjectRepository } from "@mikro-orm/nestjs"
 import { type IQueryHandler, Query, QueryHandler } from "@nestjs/cqrs"
-import { PaginatedInput, PaginatedOutput } from "@openmedia/backend/utils/pagination"
+import { IConnection, PaginatedInput } from "@openmedia/backend/utils/pagination"
 import { FollowshipEntity } from "../entity"
 
 export interface GetFolloweesInput extends PaginatedInput {
 	followerID: number
 }
 
-export interface GetFolloweesOutput extends PaginatedOutput {
-	followeeIDs: Array<number>
-}
+export interface GetFolloweesOutput extends IConnection<number> {}
 
 export class GetFolloweesQuery extends Query<GetFolloweesOutput> {
 	constructor(readonly input: GetFolloweesInput) {
@@ -26,18 +24,26 @@ export class GetFolloweesHandler implements IQueryHandler<GetFolloweesQuery> {
 	) {}
 
 	async execute({ input }: GetFolloweesQuery): Promise<GetFolloweesOutput> {
-		const [followships, count] = await this.followshipsRepository.findAndCount(
-			{ followerID: input.followerID },
-			{
-				orderBy: { id: "desc" },
+		const cursor = await this.followshipsRepository.findByCursor({
+			where: { followerID: input.followerID },
+			orderBy: { id: "desc" },
 
-				offset: input.offset,
-				limit: input.limit
+			first: input.first,
+			after: input.after,
+
+			includeCount: false
+		})
+
+		return {
+			edges: cursor.items.map((followship) => ({
+				cursor: cursor.from(followship),
+				node: followship.followeeID
+			})),
+			pageInfo: {
+				startCursor: cursor.startCursor,
+				endCursor: cursor.endCursor,
+				hasNextPage: cursor.hasNextPage
 			}
-		)
-
-		const followeeIDs = followships.map((followship) => followship.followeeID)
-
-		return { count, followeeIDs }
+		}
 	}
 }

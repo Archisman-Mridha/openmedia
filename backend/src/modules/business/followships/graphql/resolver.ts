@@ -14,14 +14,14 @@ import {
 	GetFolloweesArgs,
 	GetFollowersArgs
 } from "./args"
-import { Followee, Followees, Follower, Followers } from "./models"
+import { Followee, FolloweesConnection, Follower, FollowersConnection } from "./models"
 
 @Resolver(Follower)
 export class FollowerResolver {
 	constructor(private readonly queryBus: QueryBus) {}
 
 	@ResolveField(() => ProfilePreview)
-	async profilePreview(@Parent() follower: Follower): Promise<ProfilePreview> {
+	async resolveProfilePreview(@Parent() follower: Follower): Promise<ProfilePreview> {
 		return this.queryBus.execute(new GetProfilePreviewByIDQuery({ id: follower.id }))
 	}
 }
@@ -31,7 +31,7 @@ export class FolloweeResolver {
 	constructor(private readonly queryBus: QueryBus) {}
 
 	@ResolveField(() => ProfilePreview)
-	async profilePreview(@Parent() followee: Followee): Promise<ProfilePreview> {
+	async resolveProfilePreview(@Parent() followee: Followee): Promise<ProfilePreview> {
 		return this.queryBus.execute(new GetProfilePreviewByIDQuery({ id: followee.id }))
 	}
 }
@@ -63,27 +63,23 @@ export class FollowshipsResolver {
 		return true
 	}
 
-	@Query(() => Followers)
-	async getFollowers(@Args() args: GetFollowersArgs): Promise<Followers> {
-		const { count, followerIDs } = await this.queryBus.execute(new GetFollowersQuery(args))
-
-		const followers = followerIDs.map((followerID) => ({ id: followerID }))
+	@Query(() => FollowersConnection)
+	async getFollowers(@Args() args: GetFollowersArgs): Promise<FollowersConnection> {
+		const { edges, pageInfo } = await this.queryBus.execute(new GetFollowersQuery(args))
 
 		return {
-			count,
-			followers
+			edges: edges.map(({ cursor, node: followerID }) => ({ cursor, node: { id: followerID } })),
+			pageInfo
 		}
 	}
 
-	@Query(() => Followees)
-	async getFollowees(@Args() args: GetFolloweesArgs): Promise<Followees> {
-		const { count, followeeIDs } = await this.queryBus.execute(new GetFolloweesQuery(args))
-
-		const followees = followeeIDs.map((followeeID) => ({ id: followeeID }))
+	@Query(() => FolloweesConnection)
+	async getFollowees(@Args() args: GetFolloweesArgs): Promise<FolloweesConnection> {
+		const { edges, pageInfo } = await this.queryBus.execute(new GetFolloweesQuery(args))
 
 		return {
-			count,
-			followees
+			edges: edges.map(({ cursor, node: followeeID }) => ({ cursor, node: { id: followeeID } })),
+			pageInfo
 		}
 	}
 }

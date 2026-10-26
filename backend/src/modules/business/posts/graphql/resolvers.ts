@@ -8,7 +8,7 @@ import { CreatePostCommand } from "../commands/create-post"
 import { GetPostByIDQuery } from "../queries/get-post-by-id"
 import { GetPostsByAuthorQuery } from "../queries/get-posts-by-author"
 import { CreatePostArgs, GetPostArgs, GetPostsByAuthorArgs } from "./args"
-import { Post, Posts } from "./models"
+import { Post, PostsConnection } from "./models"
 
 @Resolver(Post)
 export class PostsResolver {
@@ -23,8 +23,8 @@ export class PostsResolver {
 		return post.id
 	}
 
-	@Query(() => Posts)
-	async getPostsByAuthor(@Args() args: GetPostsByAuthorArgs): Promise<Posts> {
+	@Query(() => PostsConnection)
+	async getPostsByAuthor(@Args() args: GetPostsByAuthorArgs): Promise<PostsConnection> {
 		return this.queryBus.execute(new GetPostsByAuthorQuery(args))
 	}
 
@@ -34,7 +34,7 @@ export class PostsResolver {
 	}
 
 	@ResolveField(() => ProfilePreview)
-	async authorProfilePreview(@Parent() post: Post): Promise<ProfilePreview> {
+	async resolveAuthorProfilePreview(@Parent() post: Post): Promise<ProfilePreview> {
 		return this.queryBus.execute(new GetProfilePreviewByIDQuery({ id: post.authorID }))
 	}
 }

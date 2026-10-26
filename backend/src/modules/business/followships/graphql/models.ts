@@ -1,5 +1,5 @@
 import { Field, Int, ObjectType } from "@nestjs/graphql"
-import { PaginatedOutput } from "@openmedia/backend/utils/pagination"
+import { createConnection } from "@openmedia/backend/utils/pagination"
 import { ProfilePreview } from "../../profiles/graphql/models"
 
 @ObjectType()
@@ -13,10 +13,7 @@ export class Follower {
 }
 
 @ObjectType()
-export class Followers extends PaginatedOutput {
-	@Field(() => [Follower])
-	followers: Array<Follower>
-}
+export class FollowersConnection extends createConnection(Follower) {}
 
 @ObjectType()
 export class Followee {
@@ -29,10 +26,7 @@ export class Followee {
 }
 
 @ObjectType()
-export class Followees extends PaginatedOutput {
-	@Field(() => [Followee])
-	followees: Array<Followee>
-}
+export class FolloweesConnection extends createConnection(Followee) {}
 
 @ObjectType()
 export class FollowshipCounts {

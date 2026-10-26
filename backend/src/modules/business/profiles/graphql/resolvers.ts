@@ -7,6 +7,7 @@ import { CurrentUser } from "@openmedia/backend/decorators/current-user"
 import { UserEntity } from "@openmedia/backend/modules/business/users/entity"
 import { ProfileCreatedEvent, UserCreatedEvent } from "@openmedia/backend/utils/events"
 import { KafkaTopic } from "@openmedia/backend/utils/kafka"
+import { DEFAULT_FIRST } from "@openmedia/backend/utils/pagination"
 import { FollowshipCounts } from "../../followships/graphql/models"
 import { FollowshipExistsQuery } from "../../followships/queries/followship-exists"
 import { GetFollowshipCountsQuery } from "../../followships/queries/get-followship-counts"
@@ -17,7 +18,7 @@ import { IndexProfileCommand } from "../commands/index-profile"
 import { GetProfileByIDQuery } from "../queries/get-profile-by-id"
 import { SearchProfilesQuery } from "../queries/search-profiles"
 import { GetProfileByIDArgs, SearchProfilesArgs } from "./args"
-import { Profile, ProfilePreviews } from "./models"
+import { Profile, ProfilePreviewsConnection } from "./models"
 
 @Injectable()
 @Resolver(
@@ -50,8 +51,8 @@ export class ProfilesResolver {
 		await this.commandBus.execute(new IndexProfileCommand(event.payload.after))
 	}
 
-	@Query(() => ProfilePreviews)
-	async searchProfiles(@Args() args: SearchProfilesArgs): Promise<ProfilePreviews> {
+	@Query(() => ProfilePreviewsConnection)
+	async searchProfiles(@Args() args: SearchProfilesArgs): Promise<ProfilePreviewsConnection> {
 		return this.queryBus.execute(new SearchProfilesQuery(args))
 	}
 
@@ -79,17 +80,18 @@ export class ProfilesResolver {
 	}
 
 	@ResolveField(() => FollowshipCounts)
-	async followshipCounts(@Parent() profile: Profile): Promise<FollowshipCounts> {
+	async resolveFollowshipCounts(@Parent() profile: Profile): Promise<FollowshipCounts> {
 		return this.queryBus.execute(new GetFollowshipCountsQuery({ profileID: profile.id }))
 	}
 
 	@ResolveField(() => [Post])
-	async posts(@Parent() profile: Profile): Promise<Array<Post>> {
-		const { posts } = await this.queryBus.execute(
+	async resolvePosts(@Parent() profile: Profile): Promise<Array<Post>> {
+		const { edges } = await this.queryBus.execute(
 			new GetPostsByAuthorQuery({
-				authorID: profile.id
+				authorID: profile.id,
+				first: DEFAULT_FIRST
 			})
 		)
-		return posts
+		return edges.map(({ node }) => node)
 	}
 }

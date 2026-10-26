@@ -1,16 +1,14 @@
 import { EntityRepository } from "@mikro-orm/core"
 import { InjectRepository } from "@mikro-orm/nestjs"
 import { type IQueryHandler, Query, QueryHandler } from "@nestjs/cqrs"
-import { PaginatedInput, PaginatedOutput } from "@openmedia/backend/utils/pagination"
+import { IConnection, PaginatedInput } from "@openmedia/backend/utils/pagination"
 import { PostEntity } from "../entity"
 
 export interface GetPostsByAuthorInput extends PaginatedInput {
 	authorID: number
 }
 
-export interface GetPostsByAuthorOutput extends PaginatedOutput {
-	posts: Array<PostEntity>
-}
+export interface GetPostsByAuthorOutput extends IConnection<PostEntity> {}
 
 export class GetPostsByAuthorQuery extends Query<GetPostsByAuthorOutput> {
 	constructor(readonly input: GetPostsByAuthorInput) {
@@ -26,14 +24,23 @@ export class GetPostsByAuthorHandler implements IQueryHandler<GetPostsByAuthorQu
 	) {}
 
 	async execute({ input }: GetPostsByAuthorQuery): Promise<GetPostsByAuthorOutput> {
-		const [posts, count] = await this.postsRepository.findAndCount(
-			{ authorID: input.authorID },
-			{
-				offset: input.offset,
-				limit: input.limit
-			}
-		)
+		const cursor = await this.postsRepository.findByCursor({
+			where: { authorID: input.authorID },
+			orderBy: { id: "desc" },
 
-		return { posts, count }
+			first: input.first,
+			after: input.after,
+
+			includeCount: false
+		})
+
+		return {
+			edges: cursor.items.map((post) => ({ cursor: cursor.from(post), node: post })),
+			pageInfo: {
+				startCursor: cursor.startCursor,
+				endCursor: cursor.endCursor,
+				hasNextPage: cursor.hasNextPage
+			}
+		}
 	}
 }

@@ -1,5 +1,5 @@
 import { Field, ObjectType } from "@nestjs/graphql"
-import { PaginatedOutput } from "@openmedia/backend/utils/pagination"
+import { createConnection } from "@openmedia/backend/utils/pagination"
 import { ProfilePreview } from "../../profiles/graphql/models"
 import { PostEntity } from "../entity"
 
@@ -10,8 +10,4 @@ export class Post extends PostEntity {
 	authorProfilePreview?: ProfilePreview
 }
 
-@ObjectType()
-export class Posts extends PaginatedOutput {
-	@Field(() => [Post])
-	posts: Array<Post>
-}
+export class PostsConnection extends createConnection(Post) {}

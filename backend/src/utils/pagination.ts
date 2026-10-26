@@ -1,25 +1,9 @@
+import { Type } from "@nestjs/common"
 import { ArgsType, Field, InputType, Int, ObjectType } from "@nestjs/graphql"
-import { IsPositive } from "class-validator"
+import { IsPositive, Max } from "class-validator"
 
-const DEFAULT_LIMIT = 25
-
-@ArgsType()
-@InputType({ isAbstract: true })
-export abstract class PaginatedInput {
-	@IsPositive()
-	@Field(() => Int, { defaultValue: 0 })
-	offset?: number = 0
-
-	@IsPositive()
-	@Field(() => Int, { defaultValue: DEFAULT_LIMIT })
-	limit?: number = DEFAULT_LIMIT
-}
-
-@ObjectType({ isAbstract: true })
-export abstract class PaginatedOutput {
-	@Field(() => Int)
-	count: number
-}
+export const DEFAULT_FIRST = 25,
+	MAX_FIRST = 100
 
 /*
   Since numeric offsets within paginated lists can be unreliable, a common improvement is to
@@ -58,4 +42,62 @@ export abstract class PaginatedOutput {
         }
       }
     }
+
+  You can read GraphQL Relay's spec regarding cursor based pagination for GraphQL APIs here :
+  https://relay.dev/graphql/connections.htm
 */
+
+@ArgsType()
+@InputType({ isAbstract: true })
+export abstract class PaginatedInput {
+	@IsPositive()
+	@Max(MAX_FIRST)
+	@Field(() => Int, { defaultValue: DEFAULT_FIRST })
+	first: number = DEFAULT_FIRST
+
+	@Field({ nullable: true })
+	after?: string
+}
+
+interface IEdge<N> {
+	cursor: string
+	node: N
+}
+
+export interface IConnection<N> {
+	edges: Array<IEdge<N>>
+	pageInfo: PageInfo
+}
+
+@ObjectType()
+class PageInfo {
+	@Field(() => String, { nullable: true })
+	startCursor?: string
+
+	@Field(() => String, { nullable: true })
+	endCursor?: string
+
+	@Field()
+	hasNextPage: boolean
+}
+
+export function createConnection<N>(nodeType: Type<N>): Type<IConnection<N>> {
+	@ObjectType(`${nodeType.name}Edge`)
+	class Edge implements IEdge<N> {
+		@Field()
+		cursor: string
+
+		@Field(() => nodeType)
+		node: N
+	}
+
+	@ObjectType({ isAbstract: true })
+	abstract class Connection implements IConnection<N> {
+		@Field(() => [Edge])
+		edges: Array<Edge>
+
+		@Field()
+		pageInfo: PageInfo
+	}
+	return Connection as Type<IConnection<N>>
+}

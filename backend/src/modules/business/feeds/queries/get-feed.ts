@@ -1,16 +1,14 @@
 import { EntityRepository } from "@mikro-orm/core"
 import { InjectRepository } from "@mikro-orm/nestjs"
 import { type IQueryHandler, Query, QueryHandler } from "@nestjs/cqrs"
-import { type PaginatedInput } from "@openmedia/backend/utils/pagination"
+import { IConnection, type PaginatedInput } from "@openmedia/backend/utils/pagination"
 import { FeedEntity } from "../entity"
 
 export interface GetFeedInput extends PaginatedInput {
 	userID: number
 }
 
-export interface GetFeedOutput {
-	postIDs: Array<number>
-}
+export interface GetFeedOutput extends IConnection<number> {}
 
 export class GetFeedQuery extends Query<GetFeedOutput> {
 	constructor(readonly input: GetFeedInput) {
@@ -26,19 +24,24 @@ export class GetFeedHandler implements IQueryHandler<GetFeedQuery> {
 	) {}
 
 	async execute({ input }: GetFeedQuery): Promise<GetFeedOutput> {
-		const rows = await this.feedRepository.find(
-			{ consumerID: input.userID },
-			{
-				orderBy: { postCreatedAt: "desc" },
-				fields: ["postID"],
+		const cursor = await this.feedRepository.findByCursor({
+			where: { consumerID: input.userID },
+			orderBy: { postCreatedAt: "desc", id: "desc" },
+			fields: ["postID", "postCreatedAt"],
 
-				offset: input.offset,
-				limit: input.limit
-			}
-		)
+			first: input.first,
+			after: input.after,
+
+			includeCount: false
+		})
 
 		return {
-			postIDs: rows.map((row) => row.postID)
+			edges: cursor.items.map((row) => ({ cursor: cursor.from(row), node: row.postID })),
+			pageInfo: {
+				startCursor: cursor.startCursor,
+				endCursor: cursor.endCursor,
+				hasNextPage: cursor.hasNextPage
+			}
 		}
 	}
 }

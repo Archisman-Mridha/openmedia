@@ -1,5 +1,5 @@
-import { ArgsType } from "@nestjs/graphql"
+import { InputType } from "@nestjs/graphql"
 import { PaginatedInput } from "@openmedia/backend/utils/pagination"
 
-@ArgsType()
+@InputType()
 export class GetFeedArgs extends PaginatedInput {}
