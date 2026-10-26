@@ -1,6 +1,6 @@
+import { EntityRepository } from "@mikro-orm/core"
+import { InjectRepository } from "@mikro-orm/nestjs"
 import { Command, CommandHandler, type ICommandHandler } from "@nestjs/cqrs"
-import { InjectRepository } from "@nestjs/typeorm"
-import { Repository } from "typeorm"
 import { PostEntity } from "../entity"
 
 export interface CreatePostInput {
@@ -18,12 +18,12 @@ export class CreatePostCommand extends Command<PostEntity> {
 export class CreatePostHandler implements ICommandHandler<CreatePostCommand> {
 	constructor(
 		@InjectRepository(PostEntity)
-		private readonly postsRepository: Repository<PostEntity>
+		private readonly postsRepository: EntityRepository<PostEntity>
 	) {}
 
 	async execute({ input }: CreatePostCommand): Promise<PostEntity> {
-		let post = this.postsRepository.create(input)
-		post = await this.postsRepository.save(post)
+		const post = this.postsRepository.create(input)
+		await this.postsRepository.getEntityManager().flush()
 
 		return post
 	}

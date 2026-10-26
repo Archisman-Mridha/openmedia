@@ -1,8 +1,8 @@
+import { BeforeCreate, Entity, PrimaryKey, Property, Unique } from "@mikro-orm/decorators/legacy"
 import { Field, ID, ObjectType } from "@nestjs/graphql"
 import { NAME_MAX_LENGTH, USERNAME_MAX_LENGTH } from "@openmedia/packages/validators"
 import * as bcrypt from "bcrypt"
 import { Exclude } from "class-transformer"
-import { BeforeInsert, Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm"
 
 const EMAIL_MAX_LENGTH = 254
 
@@ -11,35 +11,35 @@ const HASHED_PASSWORD_MAX_LENGTH = 200
 const SALT_GENERATION_ROUNDS = 10
 
 @ObjectType({ isAbstract: true })
-@Entity({ name: "users" })
+@Entity({ tableName: "users" })
 export class UserEntity {
 	@Field(() => ID)
-	@PrimaryGeneratedColumn()
-	id: number
+	@PrimaryKey()
+	id!: number
 
 	@Field()
-	@Column({ type: "varchar", length: NAME_MAX_LENGTH })
+	@Property({ type: "varchar", length: NAME_MAX_LENGTH })
 	name: string
 
-	// Check schema.sql. We have used the UNIQUE modifier when declaring the column.
+	// Check schema.sql : we have used the UNIQUE modifier when declaring the column.
 	// Postgres generates a unique constraint with the name using the following format :
 	// <table>_<column>_key.
-	@Index("users_username_key", { unique: true })
+	@Unique({ name: "users_username_key" })
 	@Field()
-	@Column({ type: "varchar", length: USERNAME_MAX_LENGTH })
+	@Property({ type: "varchar", length: USERNAME_MAX_LENGTH })
 	username: string
 
-	@Index("users_email_key", { unique: true })
+	@Unique({ name: "users_email_key" })
 	@Field()
-	@Column({ type: "varchar", length: EMAIL_MAX_LENGTH })
+	@Property({ type: "varchar", length: EMAIL_MAX_LENGTH })
 	email: string
 
 	@Exclude({ toPlainOnly: true }) // Ignore this field when serializing.
 	@Field()
-	@Column({ type: "varchar", length: HASHED_PASSWORD_MAX_LENGTH })
+	@Property({ type: "varchar", length: HASHED_PASSWORD_MAX_LENGTH })
 	password: string
 
-	@BeforeInsert()
+	@BeforeCreate()
 	async hashPassword() {
 		const hashedPassword = await bcrypt.hash(this.password, SALT_GENERATION_ROUNDS)
 		this.password = hashedPassword

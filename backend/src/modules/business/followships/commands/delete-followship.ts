@@ -1,6 +1,6 @@
+import { EntityRepository } from "@mikro-orm/core"
+import { InjectRepository } from "@mikro-orm/nestjs"
 import { Command, CommandHandler, type ICommandHandler } from "@nestjs/cqrs"
-import { InjectRepository } from "@nestjs/typeorm"
-import { Repository } from "typeorm"
 import { FollowshipEntity } from "../entity"
 
 export interface DeleteFollowshipInput {
@@ -18,10 +18,10 @@ export class DeleteFollowshipCommand extends Command<void> {
 export class DeleteFollowshipHandler implements ICommandHandler<DeleteFollowshipCommand> {
 	constructor(
 		@InjectRepository(FollowshipEntity)
-		private readonly followshipsRepository: Repository<FollowshipEntity>
+		private readonly followshipsRepository: EntityRepository<FollowshipEntity>
 	) {}
 
 	async execute({ input }: DeleteFollowshipCommand): Promise<void> {
-		await this.followshipsRepository.delete(input)
+		await this.followshipsRepository.nativeDelete(input)
 	}
 }

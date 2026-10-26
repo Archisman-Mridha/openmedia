@@ -1,6 +1,6 @@
+import { EntityRepository } from "@mikro-orm/core"
+import { InjectRepository } from "@mikro-orm/nestjs"
 import { Command, CommandHandler, type ICommandHandler } from "@nestjs/cqrs"
-import { InjectRepository } from "@nestjs/typeorm"
-import { Repository } from "typeorm"
 import { UserEntity } from "../entity"
 
 export interface CreateUserInput {
@@ -20,13 +20,15 @@ export class CreateUserCommand extends Command<UserEntity> {
 export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
 	constructor(
 		@InjectRepository(UserEntity)
-		private readonly usersRepository: Repository<UserEntity>
+		private readonly usersRepository: EntityRepository<UserEntity>
 	) {}
 
 	async execute({ input }: CreateUserCommand): Promise<UserEntity> {
 		const user = this.usersRepository.create(input)
 
 		// TODO : Detect duplicate email and username.
-		return await this.usersRepository.save(user)
+		await this.usersRepository.getEntityManager().flush()
+
+		return user
 	}
 }

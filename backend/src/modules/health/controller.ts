@@ -4,7 +4,7 @@ import {
 	HealthCheck,
 	HealthCheckService,
 	HealthIndicatorService,
-	TypeOrmHealthIndicator
+	MikroOrmHealthIndicator
 } from "@nestjs/terminus"
 import { REDIS_CLUSTER_CLIENT } from "@openmedia/backend/modules/redis/module"
 
@@ -14,7 +14,7 @@ export class HealthController {
 		private readonly healthService: HealthCheckService,
 		private readonly healthIndicatorService: HealthIndicatorService,
 
-		private readonly db: TypeOrmHealthIndicator,
+		private readonly db: MikroOrmHealthIndicator,
 
 		@Inject(REDIS_CLUSTER_CLIENT)
 		private readonly redisClusterClient: RedisClusterType

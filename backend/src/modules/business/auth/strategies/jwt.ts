@@ -88,7 +88,7 @@ export class JWTAuthStrategy extends PassportStrategy(Strategy) {
 	async validate(jwtPayload: JWTPayload): Promise<UserEntity> {
 		// Ensure that the user exists.
 		const id = jwtPayload.sub
-		const user = await this.queryBus.execute(new GetUserQuery({ where: { id } }))
+		const user = await this.queryBus.execute(new GetUserQuery({ id }))
 		if (!user) throw new UnauthorizedException()
 
 		return user

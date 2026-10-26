@@ -1,11 +1,11 @@
+import { MikroOrmModule } from "@mikro-orm/nestjs"
 import { Module } from "@nestjs/common"
-import { TypeOrmModule } from "@nestjs/typeorm"
 import { FeedEntity } from "./entity"
 import { FeedsResolver } from "./graphql/resolvers"
 import { GetFeedHandler } from "./queries/get-feed"
 
 @Module({
-	imports: [TypeOrmModule.forFeature([FeedEntity])],
+	imports: [MikroOrmModule.forFeature([FeedEntity])],
 	providers: [
 		FeedsResolver,
 

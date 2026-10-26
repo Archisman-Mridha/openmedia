@@ -1,22 +1,21 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn, Unique } from "typeorm"
+import { Entity, Index, PrimaryKey, Property, Unique } from "@mikro-orm/decorators/legacy"
 
-@Entity({ name: "feeds" })
-@Unique(["consumerID", "postID"])
-@Index(["consumerID", "postCreatedAt"])
+@Entity({ tableName: "feeds" })
+@Unique({ properties: ["consumerID", "postID"] })
+@Index({ properties: ["consumerID", "postCreatedAt"] })
 export class FeedEntity {
-	@PrimaryGeneratedColumn("uuid")
-	id: string
+	@PrimaryKey()
+	id!: number
 
-	@Column({ name: "consumer_id", type: "integer" })
+	@Property({ fieldName: "consumer_id", type: "integer" })
 	consumerID: number
 
-	@Column({ name: "post_id", type: "integer" })
+	@Property({ fieldName: "post_id", type: "integer" })
 	postID: number
 
-	@Index("feeds_post_author_id_key")
-	@Column({ name: "post_author_id", type: "integer" })
+	@Property({ fieldName: "post_author_id", type: "integer" })
 	postAuthorID: number
 
-	@Column({ name: "post_created_at", type: "timestamp with time zone" })
+	@Property({ fieldName: "post_created_at", type: "Date", columnType: "timestamptz" })
 	postCreatedAt: Date
 }

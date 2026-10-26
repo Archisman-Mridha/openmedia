@@ -1,7 +1,7 @@
+import { EntityRepository } from "@mikro-orm/core"
+import { InjectRepository } from "@mikro-orm/nestjs"
 import { NotFoundException } from "@nestjs/common"
 import { type IQueryHandler, Query, QueryHandler } from "@nestjs/cqrs"
-import { InjectRepository } from "@nestjs/typeorm"
-import { Repository } from "typeorm"
 import { ProfileEntity } from "../entity"
 
 export interface GetProfileByIDInput {
@@ -18,13 +18,11 @@ export class GetProfileByIDQuery extends Query<ProfileEntity> {
 export class GetProfileByIDHandler implements IQueryHandler<GetProfileByIDQuery> {
 	constructor(
 		@InjectRepository(ProfileEntity)
-		private readonly profilesRepository: Repository<ProfileEntity>
+		private readonly profilesRepository: EntityRepository<ProfileEntity>
 	) {}
 
 	async execute({ input }: GetProfileByIDQuery): Promise<ProfileEntity> {
-		const profile = await this.profilesRepository.findOne({
-			where: { id: input.id }
-		})
+		const profile = await this.profilesRepository.findOne({ id: input.id })
 		if (!profile) throw new NotFoundException()
 
 		return profile

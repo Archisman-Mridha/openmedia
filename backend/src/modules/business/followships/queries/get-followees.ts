@@ -1,7 +1,7 @@
+import { EntityRepository } from "@mikro-orm/core"
+import { InjectRepository } from "@mikro-orm/nestjs"
 import { type IQueryHandler, Query, QueryHandler } from "@nestjs/cqrs"
-import { InjectRepository } from "@nestjs/typeorm"
 import { PaginatedInput, PaginatedOutput } from "@openmedia/backend/utils/pagination"
-import { Repository } from "typeorm"
 import { FollowshipEntity } from "../entity"
 
 export interface GetFolloweesInput extends PaginatedInput {
@@ -22,17 +22,19 @@ export class GetFolloweesQuery extends Query<GetFolloweesOutput> {
 export class GetFolloweesHandler implements IQueryHandler<GetFolloweesQuery> {
 	constructor(
 		@InjectRepository(FollowshipEntity)
-		private readonly followshipsRepository: Repository<FollowshipEntity>
+		private readonly followshipsRepository: EntityRepository<FollowshipEntity>
 	) {}
 
 	async execute({ input }: GetFolloweesQuery): Promise<GetFolloweesOutput> {
-		const [followships, count] = await this.followshipsRepository.findAndCount({
-			where: { followerID: input.followerID },
-			order: { id: "DESC" },
+		const [followships, count] = await this.followshipsRepository.findAndCount(
+			{ followerID: input.followerID },
+			{
+				orderBy: { id: "desc" },
 
-			skip: input.offset,
-			take: input.limit
-		})
+				offset: input.offset,
+				limit: input.limit
+			}
+		)
 
 		const followeeIDs = followships.map((followship) => followship.followeeID)
 

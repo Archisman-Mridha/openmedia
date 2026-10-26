@@ -1,5 +1,5 @@
+import { MikroOrmModule } from "@mikro-orm/nestjs"
 import { Module } from "@nestjs/common"
-import { TypeOrmModule } from "@nestjs/typeorm"
 import { CreateProfileHandler } from "./commands/create-profile"
 import { IndexProfileHandler } from "./commands/index-profile"
 import { ProfileEntity } from "./entity"
@@ -9,7 +9,7 @@ import { GetProfilePreviewByIDHandler } from "./queries/get-profile-preview-by-i
 import { SearchProfilesHandler } from "./queries/search-profiles"
 
 @Module({
-	imports: [TypeOrmModule.forFeature([ProfileEntity])],
+	imports: [MikroOrmModule.forFeature([ProfileEntity])],
 	providers: [
 		ProfilesResolver,
 

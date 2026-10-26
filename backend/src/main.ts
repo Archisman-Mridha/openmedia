@@ -35,6 +35,9 @@ async function main() {
 		})
 	})
 
+	// Start listening for shutdown hooks
+	app.enableShutdownHooks()
+
 	const configService = app.get(ConfigService<z.infer<typeof ConfigSchema>>)
 
 	app.enableVersioning({

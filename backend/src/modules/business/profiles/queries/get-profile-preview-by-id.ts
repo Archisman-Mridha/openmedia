@@ -1,7 +1,7 @@
+import { EntityRepository } from "@mikro-orm/core"
+import { InjectRepository } from "@mikro-orm/nestjs"
 import { NotFoundException } from "@nestjs/common"
 import { type IQueryHandler, Query, QueryHandler } from "@nestjs/cqrs"
-import { InjectRepository } from "@nestjs/typeorm"
-import { Repository } from "typeorm"
 import { ProfileEntity } from "../entity"
 import { ProfilePreview } from "../types"
 
@@ -19,14 +19,14 @@ export class GetProfilePreviewByIDQuery extends Query<ProfilePreview> {
 export class GetProfilePreviewByIDHandler implements IQueryHandler<GetProfilePreviewByIDQuery> {
 	constructor(
 		@InjectRepository(ProfileEntity)
-		private readonly profilesRepository: Repository<ProfileEntity>
+		private readonly profilesRepository: EntityRepository<ProfileEntity>
 	) {}
 
 	async execute({ input }: GetProfilePreviewByIDQuery): Promise<ProfilePreview> {
-		const profilePreview = await this.profilesRepository.findOne({
-			where: { id: input.id },
-			select: ["id", "name", "username"]
-		})
+		const profilePreview = await this.profilesRepository.findOne(
+			{ id: input.id },
+			{ fields: ["id", "name", "username"] }
+		)
 		if (!profilePreview) throw new NotFoundException()
 
 		return profilePreview

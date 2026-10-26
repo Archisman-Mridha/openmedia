@@ -1,10 +1,10 @@
+import { EntityRepository, type FilterQuery } from "@mikro-orm/core"
+import { InjectRepository } from "@mikro-orm/nestjs"
 import { type IQueryHandler, Query, QueryHandler } from "@nestjs/cqrs"
-import { InjectRepository } from "@nestjs/typeorm"
-import { FindOneOptions, Repository } from "typeorm"
 import { UserEntity } from "../entity"
 
 export class GetUserQuery extends Query<UserEntity | null> {
-	constructor(public readonly query: FindOneOptions<UserEntity>) {
+	constructor(public readonly query: FilterQuery<UserEntity>) {
 		super()
 	}
 }
@@ -13,7 +13,7 @@ export class GetUserQuery extends Query<UserEntity | null> {
 export class GetUserHandler implements IQueryHandler<GetUserQuery> {
 	constructor(
 		@InjectRepository(UserEntity)
-		private readonly usersRepository: Repository<UserEntity>
+		private readonly usersRepository: EntityRepository<UserEntity>
 	) {}
 
 	execute(query: GetUserQuery): Promise<UserEntity | null> {

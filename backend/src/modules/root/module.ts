@@ -2,12 +2,14 @@ import type { ApolloServerPlugin } from "@apollo/server"
 import { ApolloServerPluginLandingPageLocalDefault } from "@apollo/server/plugin/landingPage/default"
 import { KeyvAdapter } from "@apollo/utils.keyvadapter"
 import KeyvRedis, { type RedisClusterType } from "@keyv/redis"
+import { ReflectMetadataProvider } from "@mikro-orm/decorators/legacy"
+import { MikroOrmModule } from "@mikro-orm/nestjs"
+import { PostgreSqlDriver } from "@mikro-orm/postgresql"
 import { ApolloDriver, type ApolloDriverConfig } from "@nestjs/apollo"
 import { Module } from "@nestjs/common"
 import { ConfigModule, ConfigService } from "@nestjs/config"
 import { CqrsModule } from "@nestjs/cqrs"
 import { GraphQLModule, GraphQLSchemaHost } from "@nestjs/graphql"
-import { TypeOrmModule } from "@nestjs/typeorm"
 import { GraphQLQueryComplexityPlugin } from "@openmedia/backend/graphql/plugins/query-complexity"
 import { MeilisearchModule } from "@openmedia/backend/modules/meilisearch/module"
 import { REDIS_CLUSTER_CLIENT, RedisModule } from "@openmedia/backend/modules/redis/module"
@@ -103,15 +105,15 @@ import { PingModule } from "../ping/module"
 
 		CqrsModule.forRoot(),
 
-		TypeOrmModule.forRootAsync({
+		MikroOrmModule.forRootAsync({
 			inject: [ConfigService],
 			useFactory: (configService: ConfigService<z.infer<typeof ConfigSchema>>) => ({
-				type: "postgres",
-				url: configService.getOrThrow("POSTGRES_URL"),
+				driver: PostgreSqlDriver,
+				metadataProvider: ReflectMetadataProvider,
+				clientUrl: configService.getOrThrow("POSTGRES_URL"),
+				debug: isDevelopmentEnvironment ? ["query", "query-params"] : false,
 
 				autoLoadEntities: true
-
-				// logging: isDevelopmentEnvironment
 			})
 		}),
 

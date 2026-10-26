@@ -1,15 +1,15 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm"
+import { Entity, Index, PrimaryKey, Property } from "@mikro-orm/decorators/legacy"
 
-@Entity({ name: "followships" })
+@Entity({ tableName: "followships" })
 export class FollowshipEntity {
-	@PrimaryGeneratedColumn()
-	id: number
+	@PrimaryKey()
+	id!: number
 
-	@Index("followships_follower_id_key")
-	@Column({ name: "follower_id", type: "integer" })
+	@Index({ name: "followers_index" })
+	@Property({ fieldName: "follower_id", type: "integer" })
 	followerID: number
 
-	@Index("followships_followee_id_key")
-	@Column({ name: "followee_id", type: "integer" })
+	@Index({ name: "followees_index" })
+	@Property({ fieldName: "followee_id", type: "integer" })
 	followeeID: number
 }

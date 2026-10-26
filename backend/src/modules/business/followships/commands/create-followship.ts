@@ -1,6 +1,6 @@
+import { EntityRepository } from "@mikro-orm/core"
+import { InjectRepository } from "@mikro-orm/nestjs"
 import { Command, CommandHandler, type ICommandHandler } from "@nestjs/cqrs"
-import { InjectRepository } from "@nestjs/typeorm"
-import { Repository } from "typeorm"
 import { FollowshipEntity } from "../entity"
 
 export interface CreateFollowshipInput {
@@ -18,11 +18,11 @@ export class CreateFollowshipCommand extends Command<void> {
 export class CreateFollowshipHandler implements ICommandHandler<CreateFollowshipCommand> {
 	constructor(
 		@InjectRepository(FollowshipEntity)
-		private readonly followshipsRepository: Repository<FollowshipEntity>
+		private readonly followshipsRepository: EntityRepository<FollowshipEntity>
 	) {}
 
 	async execute({ input }: CreateFollowshipCommand): Promise<void> {
-		const followship = this.followshipsRepository.create(input)
-		await this.followshipsRepository.save(followship)
+		this.followshipsRepository.create(input)
+		await this.followshipsRepository.getEntityManager().flush()
 	}
 }

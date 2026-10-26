@@ -17,7 +17,7 @@ export class LocalAuthStrategy extends PassportStrategy(Strategy) {
 
 	async validate(email: string, password: string): Promise<UserEntity> {
 		// Ensure that the user exists.
-		const user = await this.queryBus.execute(new GetUserQuery({ where: { email } }))
+		const user = await this.queryBus.execute(new GetUserQuery({ email }))
 		if (!user) throw new UnauthorizedException("Incorrect email or password")
 
 		// Ensure that the provided password is correct.

@@ -1,5 +1,5 @@
+import { MikroOrmModule } from "@mikro-orm/nestjs"
 import { Module } from "@nestjs/common"
-import { TypeOrmModule } from "@nestjs/typeorm"
 import { CreateFollowshipHandler } from "./commands/create-followship"
 import { DeleteFollowshipHandler } from "./commands/delete-followship"
 import { FollowshipEntity } from "./entity"
@@ -10,7 +10,7 @@ import { GetFollowersHandler } from "./queries/get-followers"
 import { GetFollowshipCountsHandler } from "./queries/get-followship-counts"
 
 @Module({
-	imports: [TypeOrmModule.forFeature([FollowshipEntity])],
+	imports: [MikroOrmModule.forFeature([FollowshipEntity])],
 	providers: [
 		FollowerResolver,
 		FolloweeResolver,

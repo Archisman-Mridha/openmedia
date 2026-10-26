@@ -1,6 +1,6 @@
+import { EntityRepository } from "@mikro-orm/core"
+import { InjectRepository } from "@mikro-orm/nestjs"
 import { type IQueryHandler, Query, QueryHandler } from "@nestjs/cqrs"
-import { InjectRepository } from "@nestjs/typeorm"
-import { Repository } from "typeorm"
 import { FollowshipEntity } from "../entity"
 
 export interface FollowshipExistsInput {
@@ -18,12 +18,14 @@ export class FollowshipExistsQuery extends Query<boolean> {
 export class FollowshipExistsHandler implements IQueryHandler<FollowshipExistsQuery> {
 	constructor(
 		@InjectRepository(FollowshipEntity)
-		private readonly followshipsRepository: Repository<FollowshipEntity>
+		private readonly followshipsRepository: EntityRepository<FollowshipEntity>
 	) {}
 
 	async execute({ input }: FollowshipExistsQuery): Promise<boolean> {
-		return this.followshipsRepository.exists({
-			where: { followerID: input.followerID, followeeID: input.followeeID }
+		const count = await this.followshipsRepository.count({
+			followerID: input.followerID,
+			followeeID: input.followeeID
 		})
+		return count > 0
 	}
 }
