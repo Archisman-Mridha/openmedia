@@ -47,6 +47,26 @@
         "type": "github"
       }
     },
+    "dagger": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1793404714,
+        "narHash": "sha256-UFMDzOGQZh1cn7tArnbcrL0mKmAi09IXIUD4XW0LgEk=",
+        "owner": "dagger",
+        "repo": "nix",
+        "rev": "fe53fab52ddcc87cbdca0cce4c20df148cc9e5e5",
+        "type": "github"
+      },
+      "original": {
+        "owner": "dagger",
+        "repo": "nix",
+        "type": "github"
+      }
+    },
     "devenv": {
       "inputs": {
         "cachix": "cachix",
@@ -290,6 +310,7 @@
     },
     "root": {
       "inputs": {
+        "dagger": "dagger",
         "devenv": "devenv",
         "nixpkgs": "nixpkgs_2",
         "nixpkgs-25_11": "nixpkgs-25_11",

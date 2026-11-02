@@ -9,6 +9,10 @@
       url = "github:cachix/devenv";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    dagger = {
+      url = "github:dagger/nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   nixConfig = {
@@ -23,6 +27,7 @@
       nixpkgs-25_11,
       systems,
       devenv,
+      dagger,
       ...
     }@inputs:
     let
@@ -52,6 +57,7 @@
 
                 packages = with pkgs; [
                   bun
+                  go
 
                   terraform
                   terragrunt
@@ -71,6 +77,7 @@
                   kubeseal
                   karmor
 
+                  golangci-lint
                   sqlfluff
                   hadolint
                   yamlfmt
@@ -78,6 +85,8 @@
                   cocogitto
 
                   prek
+
+                  dagger.packages.${system}.dagger
                 ];
 
                 env = {
