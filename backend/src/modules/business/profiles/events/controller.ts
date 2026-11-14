@@ -7,7 +7,7 @@ import { CreateProfileCommand } from "../commands/create-profile"
 import { IndexProfileCommand } from "../commands/index-profile"
 
 @Controller()
-export class ProfilesEventsController {
+export class EventsController {
 	constructor(private readonly commandBus: CommandBus) {}
 
 	@EventPattern(KafkaTopic.EVENTS_USERS_CREATED)

@@ -33,3 +33,9 @@ export namespace CDC {
 export class UserCreatedEvent extends CDC.CreatedEvent<UserEntity> {}
 
 export class ProfileCreatedEvent extends CDC.CreatedEvent<ProfileEntity> {}
+
+export class FollowshipDeletedEvent extends CDC.DeletedEvent<{
+	id: number
+	follower_id: number
+	followee_id: number
+}> {}
