@@ -4,6 +4,7 @@ import { Args } from "@openmedia/backend/decorators/args"
 import { CurrentUser } from "@openmedia/backend/decorators/current-user"
 import { ProfilePreview } from "../../profiles/graphql/models"
 import { GetProfilePreviewByIDQuery } from "../../profiles/queries/get-profile-preview-by-id"
+import { UserEntity } from "../../users/entity"
 import { CreateFollowshipCommand } from "../commands/create-followship"
 import { DeleteFollowshipCommand } from "../commands/delete-followship"
 import { GetFolloweesQuery } from "../queries/get-followees"
@@ -20,7 +21,7 @@ import { Followee, FolloweesConnection, Follower, FollowersConnection } from "./
 export class FollowerResolver {
 	constructor(private readonly queryBus: QueryBus) {}
 
-	@ResolveField(() => ProfilePreview)
+	@ResolveField("profilePreview", () => ProfilePreview)
 	async resolveProfilePreview(@Parent() follower: Follower): Promise<ProfilePreview> {
 		return this.queryBus.execute(new GetProfilePreviewByIDQuery({ id: follower.id }))
 	}
@@ -30,7 +31,7 @@ export class FollowerResolver {
 export class FolloweeResolver {
 	constructor(private readonly queryBus: QueryBus) {}
 
-	@ResolveField(() => ProfilePreview)
+	@ResolveField("profilePreview", () => ProfilePreview)
 	async resolveProfilePreview(@Parent() followee: Followee): Promise<ProfilePreview> {
 		return this.queryBus.execute(new GetProfilePreviewByIDQuery({ id: followee.id }))
 	}
@@ -45,20 +46,20 @@ export class FollowshipsResolver {
 
 	@Mutation(() => Boolean)
 	async follow(
-		@CurrentUser() followerID: number,
+		@CurrentUser() follower: UserEntity,
 		@Args() args: CreateFollowshipArgs
 	): Promise<boolean> {
-		await this.commandBus.execute(new CreateFollowshipCommand({ followerID, ...args }))
+		await this.commandBus.execute(new CreateFollowshipCommand({ followerID: follower.id, ...args }))
 
 		return true
 	}
 
 	@Mutation(() => Boolean)
 	async unfollow(
-		@CurrentUser() followerID: number,
+		@CurrentUser() follower: UserEntity,
 		@Args() args: DeleteFollowshipArgs
 	): Promise<boolean> {
-		await this.commandBus.execute(new DeleteFollowshipCommand({ followerID, ...args }))
+		await this.commandBus.execute(new DeleteFollowshipCommand({ followerID: follower.id, ...args }))
 
 		return true
 	}

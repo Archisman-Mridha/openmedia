@@ -31,9 +31,11 @@ export class FeedsResolver {
 			edges: feedsConnection.edges.flatMap(({ cursor, node: postID }) => {
 				const post = postsMap.get(postID)
 
-				// NOTE : We get the post IDs from the feeds table.
-				//        Now, when we're fetching those posts via the posts module, a post gets deleted.
-				//        We need to handle that situation.
+				/*
+          NOTE : We get the post IDs from the feeds table.
+                 Now, when we're fetching those posts via the posts module, a post gets deleted.
+                 We need to handle that situation.
+        */
 				return post ? [{ cursor, node: post }] : []
 			}),
 			pageInfo: feedsConnection.pageInfo

@@ -1,20 +1,15 @@
 import { Injectable } from "@nestjs/common"
-import { CommandBus, QueryBus } from "@nestjs/cqrs"
+import { QueryBus } from "@nestjs/cqrs"
 import { Parent, Query, ResolveField, Resolver } from "@nestjs/graphql"
-import { EventPattern, Payload } from "@nestjs/microservices"
 import { Args } from "@openmedia/backend/decorators/args"
 import { CurrentUser } from "@openmedia/backend/decorators/current-user"
 import { UserEntity } from "@openmedia/backend/modules/business/users/entity"
-import { ProfileCreatedEvent, UserCreatedEvent } from "@openmedia/backend/utils/events"
-import { KafkaTopic } from "@openmedia/backend/utils/kafka"
 import { DEFAULT_FIRST } from "@openmedia/backend/utils/pagination"
 import { FollowshipCounts } from "../../followships/graphql/models"
 import { FollowshipExistsQuery } from "../../followships/queries/followship-exists"
 import { GetFollowshipCountsQuery } from "../../followships/queries/get-followship-counts"
 import { Post } from "../../posts/graphql/models"
 import { GetPostsByAuthorQuery } from "../../posts/queries/get-posts-by-author"
-import { CreateProfileCommand } from "../commands/create-profile"
-import { IndexProfileCommand } from "../commands/index-profile"
 import { GetProfileByIDQuery } from "../queries/get-profile-by-id"
 import { SearchProfilesQuery } from "../queries/search-profiles"
 import { GetProfileByIDArgs, SearchProfilesArgs } from "./args"
@@ -36,20 +31,7 @@ import { Profile, ProfilePreviewsConnection } from "./models"
 	Profile
 )
 export class ProfilesResolver {
-	constructor(
-		private readonly commandBus: CommandBus,
-		private readonly queryBus: QueryBus
-	) {}
-
-	@EventPattern(KafkaTopic.EVENTS_USERS_CREATED)
-	async onUserCreated(@Payload() event: UserCreatedEvent): Promise<void> {
-		await this.commandBus.execute(new CreateProfileCommand(event.payload.after))
-	}
-
-	@EventPattern(KafkaTopic.EVENTS_PROFILES_CREATED)
-	async onProfileCreated(@Payload() event: ProfileCreatedEvent): Promise<void> {
-		await this.commandBus.execute(new IndexProfileCommand(event.payload.after))
-	}
+	constructor(private readonly queryBus: QueryBus) {}
 
 	@Query(() => ProfilePreviewsConnection)
 	async searchProfiles(@Args() args: SearchProfilesArgs): Promise<ProfilePreviewsConnection> {
@@ -79,12 +61,12 @@ export class ProfilesResolver {
 		return profile
 	}
 
-	@ResolveField(() => FollowshipCounts)
+	@ResolveField("followshipCounts", () => FollowshipCounts)
 	async resolveFollowshipCounts(@Parent() profile: Profile): Promise<FollowshipCounts> {
 		return this.queryBus.execute(new GetFollowshipCountsQuery({ profileID: profile.id }))
 	}
 
-	@ResolveField(() => [Post])
+	@ResolveField("posts", () => [Post])
 	async resolvePosts(@Parent() profile: Profile): Promise<Array<Post>> {
 		const { edges } = await this.queryBus.execute(
 			new GetPostsByAuthorQuery({

@@ -3,6 +3,7 @@ import { Module } from "@nestjs/common"
 import { CreateProfileHandler } from "./commands/create-profile"
 import { IndexProfileHandler } from "./commands/index-profile"
 import { ProfileEntity } from "./entity"
+import { ProfilesEventsController } from "./events/controller"
 import { ProfilesResolver } from "./graphql/resolvers"
 import { GetProfileByIDHandler } from "./queries/get-profile-by-id"
 import { GetProfilePreviewByIDHandler } from "./queries/get-profile-preview-by-id"
@@ -21,6 +22,7 @@ import { SearchProfilesHandler } from "./queries/search-profiles"
 		SearchProfilesHandler,
 		GetProfilePreviewByIDHandler,
 		GetProfileByIDHandler
-	]
+	],
+	controllers: [ProfilesEventsController]
 })
 export class ProfilesModule {}

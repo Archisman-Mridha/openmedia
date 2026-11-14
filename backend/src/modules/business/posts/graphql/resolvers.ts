@@ -4,6 +4,7 @@ import { Args } from "@openmedia/backend/decorators/args"
 import { CurrentUser } from "@openmedia/backend/decorators/current-user"
 import { ProfilePreview } from "../../profiles/graphql/models"
 import { GetProfilePreviewByIDQuery } from "../../profiles/queries/get-profile-preview-by-id"
+import { UserEntity } from "../../users/entity"
 import { CreatePostCommand } from "../commands/create-post"
 import { GetPostByIDQuery } from "../queries/get-post-by-id"
 import { GetPostsByAuthorQuery } from "../queries/get-posts-by-author"
@@ -18,8 +19,13 @@ export class PostsResolver {
 	) {}
 
 	@Mutation(() => Number)
-	async createPost(@CurrentUser() authorID: number, @Args() args: CreatePostArgs): Promise<number> {
-		const post = await this.commandBus.execute(new CreatePostCommand({ authorID, ...args }))
+	async createPost(
+		@CurrentUser() author: UserEntity,
+		@Args() args: CreatePostArgs
+	): Promise<number> {
+		const post = await this.commandBus.execute(
+			new CreatePostCommand({ authorID: author.id, ...args })
+		)
 		return post.id
 	}
 
@@ -33,7 +39,7 @@ export class PostsResolver {
 		return this.queryBus.execute(new GetPostByIDQuery(args))
 	}
 
-	@ResolveField(() => ProfilePreview)
+	@ResolveField("authorProfilePreview", () => ProfilePreview)
 	async resolveAuthorProfilePreview(@Parent() post: Post): Promise<ProfilePreview> {
 		return this.queryBus.execute(new GetProfilePreviewByIDQuery({ id: post.authorID }))
 	}

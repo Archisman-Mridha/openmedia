@@ -19,7 +19,7 @@ export class SigninHandler implements IQueryHandler<SigninQuery> {
 	constructor(private readonly jwtService: JwtService) {}
 
 	async execute({ user }: SigninQuery): Promise<SigninOutput> {
-		const jwtPayload: JWTPayload = { sub: user.id, ...user }
+		const jwtPayload: JWTPayload = { sub: user.id, email: user.email }
 		const accessToken = await this.jwtService.signAsync(jwtPayload)
 
 		return {
