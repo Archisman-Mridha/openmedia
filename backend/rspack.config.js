@@ -21,6 +21,13 @@ module.exports = {
 			optimization: true,
 			outputHashing: "none",
 			generatePackageJson: true
-		})
+		}),
+		{
+			apply(compiler) {
+				for (const rule of compiler.options.module.rules) {
+					if (rule?.loader === "builtin:swc-loader") rule.options.jsc.target = "es2021"
+				}
+			}
+		}
 	]
 }

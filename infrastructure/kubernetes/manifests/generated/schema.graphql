@@ -1,0 +1,171 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type SigninOutput {
+  userID: ID!
+  accessToken: String!
+}
+
+type PageInfo {
+  startCursor: String
+  endCursor: String
+  hasNextPage: Boolean!
+}
+
+type Follower {
+  id: Int!
+  profilePreview: ProfilePreview!
+}
+
+type FollowerEdge {
+  cursor: String!
+  node: Follower!
+}
+
+type FollowersConnection {
+  edges: [FollowerEdge!]!
+  pageInfo: PageInfo!
+}
+
+type Followee {
+  id: Int!
+  profilePreview: ProfilePreview!
+}
+
+type FolloweeEdge {
+  cursor: String!
+  node: Followee!
+}
+
+type FolloweesConnection {
+  edges: [FolloweeEdge!]!
+  pageInfo: PageInfo!
+}
+
+type FollowshipCounts {
+  followerCount: Int!
+  followeeCount: Int!
+}
+
+type Profile {
+  id: ID!
+  name: String!
+  username: String!
+  isFollowee: Boolean!
+  followshipCounts: FollowshipCounts!
+  posts: [Post!]!
+}
+
+type ProfilePreview {
+  id: ID!
+  name: String!
+  username: String!
+}
+
+type ProfilePreviewEdge {
+  cursor: String!
+  node: ProfilePreview!
+}
+
+type ProfilePreviewsConnection {
+  edges: [ProfilePreviewEdge!]!
+  pageInfo: PageInfo!
+}
+
+type Post {
+  id: ID!
+  authorID: Int!
+  description: String
+  authorProfilePreview: ProfilePreview!
+}
+
+type PostEdge {
+  cursor: String!
+  node: Post!
+}
+
+type PostsConnection {
+  edges: [PostEdge!]!
+  pageInfo: PageInfo!
+}
+
+type Query {
+  ping: String!
+  signin(args: SigninArgs!): SigninOutput!
+  searchProfiles(args: SearchProfilesArgs!): ProfilePreviewsConnection!
+  getProfileByID(args: GetProfileByIDArgs!): Profile!
+  getFollowers(args: GetFollowersArgs!): FollowersConnection!
+  getFollowees(args: GetFolloweesArgs!): FolloweesConnection!
+  getPostsByAuthor(args: GetPostsByAuthorArgs!): PostsConnection!
+  getPostByID(args: GetPostArgs!): Post!
+  getFeed(args: GetFeedArgs!): PostsConnection!
+}
+
+input SigninArgs {
+  email: String!
+  password: String!
+}
+
+input SearchProfilesArgs {
+  first: Int! = 25
+  after: String
+  query: String!
+}
+
+input GetProfileByIDArgs {
+  id: Int!
+}
+
+input GetFollowersArgs {
+  first: Int! = 25
+  after: String
+  followeeID: Int!
+}
+
+input GetFolloweesArgs {
+  first: Int! = 25
+  after: String
+  followerID: Int!
+}
+
+input GetPostsByAuthorArgs {
+  first: Int! = 25
+  after: String
+  authorID: Int!
+}
+
+input GetPostArgs {
+  id: Int!
+}
+
+input GetFeedArgs {
+  first: Int! = 25
+  after: String
+}
+
+type Mutation {
+  signup(args: SignupArgs!): SigninOutput!
+  follow(args: CreateFollowshipArgs!): Boolean!
+  unfollow(args: DeleteFollowshipArgs!): Boolean!
+  createPost(args: CreatePostArgs!): Float!
+}
+
+input SignupArgs {
+  name: String!
+  username: String!
+  email: String!
+  password: String!
+}
+
+input CreateFollowshipArgs {
+  followeeID: Int!
+}
+
+input DeleteFollowshipArgs {
+  followeeID: Int!
+}
+
+input CreatePostArgs {
+  description: String
+}

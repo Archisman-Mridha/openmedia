@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common"
 import { QueryBus } from "@nestjs/cqrs"
-import { Args, Query, Resolver } from "@nestjs/graphql"
+import { Query, Resolver } from "@nestjs/graphql"
+import { Args } from "@openmedia/backend/decorators/args"
 import { CurrentUser } from "@openmedia/backend/decorators/current-user"
 import { UserEntity } from "@openmedia/backend/modules/business/users/entity"
 import { PostsConnection } from "../../posts/graphql/models"
@@ -31,9 +32,11 @@ export class FeedsResolver {
 			edges: feedsConnection.edges.flatMap(({ cursor, node: postID }) => {
 				const post = postsMap.get(postID)
 
-				// NOTE : We get the post IDs from the feeds table.
-				//        Now, when we're fetching those posts via the posts module, a post gets deleted.
-				//        We need to handle that situation.
+				/*
+          NOTE : We get the post IDs from the feeds table.
+                Now, when we're fetching those posts via the posts module, a post gets deleted.
+                We need to handle that situation.
+        */
 				return post ? [{ cursor, node: post }] : []
 			}),
 			pageInfo: feedsConnection.pageInfo

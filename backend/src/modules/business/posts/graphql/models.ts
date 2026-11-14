@@ -10,4 +10,5 @@ export class Post extends PostEntity {
 	authorProfilePreview?: ProfilePreview
 }
 
+@ObjectType()
 export class PostsConnection extends createConnection(Post) {}

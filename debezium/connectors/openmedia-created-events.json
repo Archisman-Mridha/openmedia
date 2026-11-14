@@ -1,0 +1,26 @@
+{
+	"connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+	"plugin.name": "pgoutput",
+
+	"database.hostname": "postgres",
+	"database.port": "5432",
+	"database.user": "${env:POSTGRES_USER}",
+	"database.password": "${env:POSTGRES_PASSWORD}",
+	"database.dbname": "${env:POSTGRES_DB}",
+
+	"slot.name": "openmedia_created_events",
+	"publication.name": "openmedia_created_events",
+	"publication.autocreate.mode": "filtered",
+
+	"table.include.list": "public.users,public.profiles,public.followships,public.posts",
+	"column.exclude.list": "public.users.password",
+
+	"skipped.operations": "u,d,t",
+	"snapshot.mode": "no_data",
+
+	"topic.prefix": "cdc.created",
+	"transforms": "route",
+	"transforms.route.type": "org.apache.kafka.connect.transforms.RegexRouter",
+	"transforms.route.regex": "cdc\\.created\\.public\\.(.*)",
+	"transforms.route.replacement": "events.$1.created"
+}

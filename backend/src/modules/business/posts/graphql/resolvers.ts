@@ -2,6 +2,7 @@ import { CommandBus, QueryBus } from "@nestjs/cqrs"
 import { Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql"
 import { Args } from "@openmedia/backend/decorators/args"
 import { CurrentUser } from "@openmedia/backend/decorators/current-user"
+import { UserEntity } from "@openmedia/backend/modules/business/users/entity"
 import { ProfilePreview } from "../../profiles/graphql/models"
 import { GetProfilePreviewByIDQuery } from "../../profiles/queries/get-profile-preview-by-id"
 import { CreatePostCommand } from "../commands/create-post"
@@ -18,8 +19,10 @@ export class PostsResolver {
 	) {}
 
 	@Mutation(() => Number)
-	async createPost(@CurrentUser() authorID: number, @Args() args: CreatePostArgs): Promise<number> {
-		const post = await this.commandBus.execute(new CreatePostCommand({ authorID, ...args }))
+	async createPost(@CurrentUser() user: UserEntity, @Args() args: CreatePostArgs): Promise<number> {
+		const post = await this.commandBus.execute(
+			new CreatePostCommand({ authorID: user.id, ...args })
+		)
 		return post.id
 	}
 
@@ -33,7 +36,7 @@ export class PostsResolver {
 		return this.queryBus.execute(new GetPostByIDQuery(args))
 	}
 
-	@ResolveField(() => ProfilePreview)
+	@ResolveField("authorProfilePreview", () => ProfilePreview)
 	async resolveAuthorProfilePreview(@Parent() post: Post): Promise<ProfilePreview> {
 		return this.queryBus.execute(new GetProfilePreviewByIDQuery({ id: post.authorID }))
 	}

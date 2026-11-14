@@ -54,6 +54,9 @@ local newUser = function(clusterName, consumerGroupName, userName, namespace, ac
     },
   },
   spec: {
+    authentication: {
+      type: 'scram-sha-512',
+    },
     authorization: {
       type: 'simple',
       acls: acls + [{
@@ -94,8 +97,14 @@ local newCluster = function(
             port: 9092,
             type: 'internal',
             tls: false,
+            authentication: {
+              type: 'scram-sha-512',
+            },
           },
         ],
+        authorization: {
+          type: 'simple',
+        },
         config: {
           // Disable auto creation of topic on the server.
           'auto.create.topics.enable': false,
@@ -224,4 +233,5 @@ local newCluster = function(
   }),
 
   newCluster:: newCluster,
+  newTopic:: newTopic,
 }

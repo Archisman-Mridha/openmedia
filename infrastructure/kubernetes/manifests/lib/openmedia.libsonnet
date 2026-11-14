@@ -1,10 +1,15 @@
 local CloudNativePG = import './cloudnative-pg.libsonnet';
+local Debezium = import './debezium.libsonnet';
 local Dragonfly = import './dragonfly.libsonnet';
+local Flink = import './flink.libsonnet';
 local Meilisearch = import './meilisearch.libsonnet';
 local Strimzi = import './strimzi.libsonnet';
 local Utils = import './utils.libsonnet';
 
 local app = 'openmedia';
+
+local kafkaConnectGroupID = 'debezium',
+      feedProcessor = 'feed-processor';
 
 local publishedTables = ['users', 'profiles', 'followships', 'posts'];
 
@@ -45,6 +50,15 @@ local postgresCluster = CloudNativePG.newCluster(app, app) + {
           // database name), as well as randomly generate a secure password for both the superuser
           // and the application user in Postgres.
         },
+      },
+
+      managed: {
+        roles: [{
+          name: app,
+          ensure: 'present',
+          login: true,
+          replication: true,
+        }],
       },
     },
   },
@@ -120,6 +134,11 @@ local kafkaCluster =
   local topics = [
     std.format('events.%s.created', tableName)
     for tableName in publishedTables
+  ] + ['events.followships.deleted'];
+
+  local connectInternalTopics = [
+    std.format('%s.%s', [kafkaConnectGroupID, suffix])
+    for suffix in ['configs', 'offsets', 'statuses']
   ];
 
   local consumerGroups = [
@@ -145,15 +164,140 @@ local kafkaCluster =
         },
       ],
     },
+    {
+      name: kafkaConnectGroupID,
+      users: [
+        {
+          name: kafkaConnectGroupID,
+          acls: [
+            {
+              resource: {
+                type: 'topic',
+                name: topic,
+                patternType: 'literal',
+              },
+              operations: ['Describe', 'DescribeConfigs', 'Read', 'Write'],
+              host: '*',
+            }
+            for topic in connectInternalTopics
+          ] + [
+            {
+              resource: {
+                type: 'topic',
+                name: topic,
+                patternType: 'literal',
+              },
+              operations: ['Describe', 'Write'],
+              host: '*',
+            }
+            for topic in topics
+          ],
+        },
+      ],
+    },
+    {
+      name: feedProcessor,
+      users: [
+        {
+          name: feedProcessor,
+          acls: [
+            {
+              resource: {
+                type: 'topic',
+                name: topic,
+                patternType: 'literal',
+              },
+              operations: ['Describe', 'Read'],
+              host: '*',
+            }
+            for topic in [
+              'events.followships.created',
+              'events.followships.deleted',
+              'events.posts.created',
+            ]
+          ],
+        },
+      ],
+    },
   ];
 
-  Strimzi.newCluster(app, app, controllerVolumeSize, brokerVolumeSize, topics, consumerGroups);
+  Strimzi.newCluster(app, app, controllerVolumeSize, brokerVolumeSize, topics, consumerGroups) + {
+    topics+: {
+      [topicName]: Strimzi.newTopic(app, topicName, app) + {
+        spec+: {
+          partitions: if std.endsWith(topicName, '.configs') then 1 else 5,
+          config: { 'cleanup.policy': 'compact' },
+        },
+      }
+      for topicName in connectInternalTopics
+    },
+  };
+
+local postgresCredentialsEnv = [
+  { name: 'POSTGRES_USER', valueFrom: { secretKeyRef: { name: app + '-app', key: 'username' } } },
+  { name: 'POSTGRES_PASSWORD', valueFrom: { secretKeyRef: { name: app + '-app', key: 'password' } } },
+];
+
+local kafkaConnectCluster = Debezium.newConnectCluster(
+  name=kafkaConnectGroupID,
+  namespace=app,
+  kafkaClusterName=app,
+  kafkaUserName=std.format('%s-%s', [app, kafkaConnectGroupID]),
+  groupID=kafkaConnectGroupID,
+  outputImage='ghcr.io/archisman-mridha/openmedia-kafka-connect:debezium-3.7.1',
+  pushSecretName='ghcr-credentials',
+  env=postgresCredentialsEnv + [
+    { name: 'POSTGRES_DB', valueFrom: { secretKeyRef: { name: app + '-app', key: 'dbname' } } },
+  ],
+);
+
+local kafkaConnectors = {
+  [connector.name]: Debezium.newConnector(
+    connector.name,
+    app,
+    kafkaConnectGroupID,
+    std.parseJson(connector.config) + {
+      'database.hostname': app + '-rw',
+      'slot.failover': 'true',
+    },
+  )
+  for connector in [
+    {
+      name: 'openmedia-created-events',
+      config: importstr '../../../../debezium/connectors/openmedia-created-events.json',
+    },
+    {
+      name: 'openmedia-deleted-events',
+      config: importstr '../../../../debezium/connectors/openmedia-deleted-events.json',
+    },
+  ]
+};
+
+local feedProcessorDeployment = function(bucketName) Flink.newDeployment(
+  name=feedProcessor,
+  namespace=app,
+  image='ghcr.io/archisman-mridha/openmedia-feed-processor:dev',
+  jarURI='local:///opt/flink/usrlib/feed-processor.jar',
+  entryClass='openmedia.feeds.FeedProcessorJob',
+  bucketName=bucketName,
+  s3CredentialsSecretName=feedProcessor + '-s3-credentials',
+  env=postgresCredentialsEnv + [
+    { name: 'KAFKA_BROKERS', value: app + '-kafka-bootstrap:9092' },
+    { name: 'KAFKA_SASL_MECHANISM', value: 'SCRAM-SHA-512' },
+    { name: 'KAFKA_USERNAME', value: std.format('%s-%s', [app, feedProcessor]) },
+    {
+      name: 'KAFKA_PASSWORD',
+      valueFrom: { secretKeyRef: { name: std.format('%s-%s', [app, feedProcessor]), key: 'password' } },
+    },
+    { name: 'POSTGRES_URL', value: std.format('jdbc:postgresql://%s-rw:5432/%s', [app, app]) },
+  ],
+);
 
 local meilisearchCluster = Meilisearch.newCluster(app, app);
 
 local dragonflyCluster = Dragonfly.newCluster(app, app);
 
-{
+function(feedProcessorBucketName) {
   openmedia: Utils.withAppLabel(app, {
     database: {
       postgresCluster: postgresCluster,
@@ -161,6 +305,13 @@ local dragonflyCluster = Dragonfly.newCluster(app, app);
     },
 
     kafkaCluster: kafkaCluster,
+
+    kafkaConnect: {
+      cluster: kafkaConnectCluster,
+      connectors: kafkaConnectors,
+    },
+
+    feedProcessor: feedProcessorDeployment(feedProcessorBucketName),
 
     dragonflyCluster: dragonflyCluster,
 

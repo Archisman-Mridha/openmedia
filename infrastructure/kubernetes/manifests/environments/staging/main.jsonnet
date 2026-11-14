@@ -7,6 +7,10 @@ local awsRegion = 'us-east-2',
 
       openobserveBucketName = 'openobserve-stream-store-staging-openmedia',
 
+      lokiBucketName = 'loki-staging-openmedia',
+
+      feedProcessorBucketName = 'feed-processor-staging-openmedia',
+
       argoCDSourceRepo = 'https://github.com/archisman-mridha/openmedia';
 
 local clusterAutoscalerIAMRoleARN =
@@ -29,7 +33,8 @@ local openObserveIAMRoleARN =
 // For monitoring.
 (import 'monitoring/node-problem-detector.libsonnet') +
 (import 'monitoring/kube-prometheus-stack.libsonnet') +
-(import 'monitoring/openobserve.libsonnet')(openobserveBucketName) +
+(import 'monitoring/loki.libsonnet')(lokiBucketName) +
+(import 'monitoring/alloy.libsonnet') +
 (import 'monitoring/opencost.libsonnet') +
 
 // For security.
@@ -59,4 +64,4 @@ local openObserveIAMRoleARN =
 (import 'dragonfly.libsonnet') +
 (import 'flink.libsonnet') +
 
-(import 'openmedia.libsonnet')
+(import 'openmedia.libsonnet')(feedProcessorBucketName)

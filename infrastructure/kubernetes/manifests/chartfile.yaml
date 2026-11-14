@@ -58,6 +58,16 @@ repositories:
     url: https://crossplane-contrib.github.io/crossview
   - name: crossplane
     url: https://charts.crossplane.io/stable
+  - name: capi-operator
+    url: https://kubernetes-sigs.github.io/cluster-api-operator
+  - name: debezium
+    url: https://charts.debezium.io
+  - name: grafana
+    url: https://grafana.github.io/helm-charts
+  - name: grafana-community
+    url: https://grafana-community.github.io/helm-charts
+  - name: flink-operator-repo
+    url: https://downloads.apache.org/flink/flink-kubernetes-operator-1.16.1/
 requires:
   - chart: cilium/cilium
     version: 1.19.4
@@ -113,4 +123,14 @@ requires:
     version: 3.9.0-rc.4
   - chart: crossplane/crossplane
     version: 2.3.4
+  - chart: capi-operator/cluster-api-operator
+    version: 0.30.0
+  - chart: debezium/debezium-operator
+    version: 3.2.0-final
+  - chart: grafana/alloy-operator
+    version: 0.9.4
+  - chart: grafana-community/loki
+    version: 21.2.3
+  - chart: flink-operator-repo/flink-kubernetes-operator
+    version: 1.16.1
 version: 1

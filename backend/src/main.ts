@@ -22,7 +22,7 @@ import type { ConfigSchema } from "./config/config"
 import { RootModule } from "./modules/root/module"
 import { isDevelopmentEnvironment } from "./utils/utils"
 
-const KAFKA_SASL_MECHANISM = "scram-sha-256"
+const KAFKA_SASL_MECHANISM = "plain"
 
 async function main() {
 	const app = await NestFactory.create<NestFastifyApplication>(RootModule, new FastifyAdapter(), {

@@ -30,6 +30,10 @@ CREATE TABLE followships (
   followee_id INTEGER NOT NULL
 );
 
+-- Debezium captures deletes from this table. Without a primary key, Postgres rejects DELETEs on a
+-- table published for logical replication, and the delete event would carry no before image.
+ALTER TABLE followships REPLICA IDENTITY FULL;
+
 -- Creating an index can interfere with regular operation of a database. Normally PostgreSQL locks
 -- the table to be indexed against writes and performs the entire index build with a single scan of
 -- the table. Other transactions can still read the table, but if they try to insert, update, or
