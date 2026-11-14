@@ -55,6 +55,14 @@
                 # integration with binary caches hosted by Cachix.
                 cachix.enable = true;
 
+                languages = {
+                  java = {
+                    enable = true;
+                    lsp.enable = false;
+                    gradle.enable = true;
+                  };
+                };
+
                 packages = with pkgs; [
                   bun
                   go
