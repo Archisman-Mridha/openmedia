@@ -58,7 +58,7 @@
                 languages = {
                   java = {
                     enable = true;
-                    lsp.enable = false;
+                    lsp.enable = true;
                     gradle.enable = true;
                   };
                 };
@@ -104,7 +104,7 @@
                 enterShell = ''
                   export KUBECONFIG="$(pwd)/infrastructure/kubernetes/kubeconfig.yaml"
 
-                  prek install
+                  # prek install
                 '';
               }
             ];

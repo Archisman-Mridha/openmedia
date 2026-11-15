@@ -1,0 +1,5 @@
+eclipse.preferences.version=1
+org.eclipse.jdt.core.formatter.continuation_indentation=1
+org.eclipse.jdt.core.formatter.continuation_indentation_for_array_initializer=1
+org.eclipse.jdt.core.formatter.parentheses_positions_in_method_invocation=separate_lines_if_wrapped
+org.eclipse.jdt.core.formatter.keep_record_declaration_on_one_line=one_line_if_empty

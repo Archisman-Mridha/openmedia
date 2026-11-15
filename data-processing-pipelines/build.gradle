@@ -33,7 +33,6 @@ plugins {
 // project.
 ext {
   javaVersion = '21'
-  scalaBinaryVersion = '2.11'
 
   flinkVersion = '2.2.1'
 

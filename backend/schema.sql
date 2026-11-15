@@ -27,8 +27,19 @@ CREATE TABLE followships (
   id SERIAL,
 
   follower_id INTEGER NOT NULL,
-  followee_id INTEGER NOT NULL
+  followee_id INTEGER NOT NULL,
+
+  UNIQUE (follower_id, followee_id)
 );
+
+-- If you are using Debezium Connector for PostgreSQL to capture the changes to Kafka, please make
+-- sure the REPLICA IDENTITY configuration of the monitored PostgreSQL table has been set to FULL
+-- which is by default DEFAULT. Otherwise, Flink SQL currently will fail to interpret the Debezium
+-- data.
+-- In FULL strategy, the UPDATE and DELETE events will contain the previous values of all the
+-- table’s columns. In other strategies, the “before” field of UPDATE and DELETE events will only
+-- contain primary key columns or null if no primary key.
+ALTER TABLE followships REPLICA IDENTITY FULL;
 
 -- Creating an index can interfere with regular operation of a database. Normally PostgreSQL locks
 -- the table to be indexed against writes and performs the entire index build with a single scan of
@@ -77,8 +88,12 @@ CREATE TABLE posts (
 
   author_id INTEGER NOT NULL,
 
-  description VARCHAR(300) NOT NULL
+  description VARCHAR(300) NOT NULL,
+
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+ALTER TABLE posts REPLICA IDENTITY FULL;
 
 CREATE INDEX CONCURRENTLY author_posts_index ON posts (author_id);
 
@@ -89,7 +104,7 @@ CREATE TABLE feeds (
 
   post_id INTEGER NOT NULL,
   post_author_id INTEGER NOT NULL,
-  post_created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  post_created_at TIMESTAMPTZ NOT NULL,
 
   UNIQUE (consumer_id, post_id)
 );

@@ -1,27 +1,8 @@
 plugins {
   id 'java'
   id 'application'
+  id 'eclipse'
   id 'com.github.johnrengelman.shadow'
-}
-
-// Declare the dependencies for your production and test code
-dependencies {
-  // Compile-time dependencies that should NOT be part of the shadow jar and are provided in
-  // the lib folder of Flink
-  implementation "org.apache.flink:flink-streaming-java_${scalaBinaryVersion}:${flinkVersion}"
-
-
-  // Dependencies that should be part of the shadow jar, e.g. connectors. These must be in the
-  // flinkShadowJar configuration!
-  flinkShadowJar "org.apache.flink:flink-connector-kafka_${scalaBinaryVersion}:${flinkVersion}"
-
-  implementation "org.apache.logging.log4j:log4j-api:${log4jVersion}"
-  implementation "org.apache.logging.log4j:log4j-core:${log4jVersion}"
-  implementation "org.apache.logging.log4j:log4j-slf4j-impl:${log4jVersion}"
-  implementation "org.slf4j:slf4j-log4j12:${slf4jVersion}"
-
-  // Add test dependencies here.
-  // testImplementation "junit:junit:4.12"
 }
 
 /*
@@ -39,6 +20,30 @@ configurations {
   flinkShadowJar.exclude group: 'com.google.code.findbugs', module: 'jsr305'
   flinkShadowJar.exclude group: 'org.slf4j'
   flinkShadowJar.exclude group: 'org.apache.logging.log4j'
+}
+
+// Declare the dependencies for your production and test code
+dependencies {
+  // Compile-time dependencies that should NOT be part of the shadow jar and are provided in
+  // the lib folder of Flink
+  implementation "org.apache.flink:flink-streaming-java:${flinkVersion}"
+  implementation "org.apache.flink:flink-table-api-java:${flinkVersion}"
+  implementation "org.apache.flink:flink-table-api-java-bridge:${flinkVersion}"
+  implementation "org.apache.flink:flink-json:${flinkVersion}"
+
+  // Dependencies that should be part of the shadow jar, e.g. connectors. These must be in the
+  // flinkShadowJar configuration!
+  flinkShadowJar "org.apache.flink:flink-connector-kafka:5.0.0-2.2"
+  flinkShadowJar "org.apache.flink:flink-connector-jdbc-core:4.1.0-2.2"
+  flinkShadowJar "org.postgresql:postgresql:42.7.14"
+
+  implementation "org.apache.logging.log4j:log4j-api:${log4jVersion}"
+  implementation "org.apache.logging.log4j:log4j-core:${log4jVersion}"
+  implementation "org.apache.logging.log4j:log4j-slf4j-impl:${log4jVersion}"
+  implementation "org.slf4j:slf4j-log4j12:${slf4jVersion}"
+
+  // Add test dependencies here.
+  // testImplementation "junit:junit:4.12"
 }
 
 // Make compileOnly dependencies available for tests:
@@ -68,4 +73,11 @@ jar {
 
 shadowJar {
   configurations = [project.configurations.flinkShadowJar]
+}
+
+// Required for autocompletion to work properly.
+eclipse {
+  classpath {
+    plusConfigurations += [configurations.flinkShadowJar]
+  }
 }
