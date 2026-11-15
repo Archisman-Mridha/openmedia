@@ -1,15 +1,21 @@
 package Openmedia.DataProcessingPipelines.FeedUpdater;
 
 import java.sql.Timestamp;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.flink.api.common.functions.OpenContext;
+import org.apache.flink.api.common.state.v2.MapState;
+import org.apache.flink.api.common.state.v2.MapStateDescriptor;
+import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.connector.jdbc.JdbcExactlyOnceOptions;
 import org.apache.flink.connector.jdbc.core.datastream.sink.JdbcSink;
 import org.apache.flink.formats.json.debezium.DebeziumJsonFormatOptions;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.co.KeyedCoProcessFunction;
 import org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.api.FormatDescriptor;
@@ -18,6 +24,7 @@ import org.apache.flink.table.api.TableDescriptor;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.table.api.config.ExecutionConfigOptions;
 import org.apache.flink.types.RowKind;
+import org.apache.flink.util.Collector;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.config.SaslConfigs;
@@ -85,26 +92,23 @@ public class FeedUpdater {
 
   private static final String KAFKA_CONSUMER_GROUP_ID = "feed_updater";
 
-  private static final class ColumnName {
-    private static final String FOLLOWER_ID = "follower_id";
-    private static final String FOLLOWEE_ID = "followee_id";
+  private static final String KAFKA_TOPIC_EVENTS_FOLLOWSHIPS = "events.followships",
+    KAFKA_TOPIC_EVENTS_POSTS_CREATED = "events.posts.created";
 
-    private static final String ID = "id";
-    private static final String AUTHOR_ID = "author_id";
-    private static final String CREATED_AT = "created_at";
-  }
+  private static final String COLUMN_NAME_FOLLOWER_ID = "follower_id",
+    COLUMN_NAME_FOLLOWEE_ID = "followee_id",
 
-  private static final class DataStreamName {
-    private static final String FOLLOWSHIP_CHANGES = "followship_changes";
+    COLUMN_NAME_ID = "id",
+    COLUMN_NAME_AUTHOR_ID = "author_id",
+    COLUMN_NAME_CREATED_AT = "created_at";
 
-    private static final String CREATED_POSTS = "created_posts";
-  }
+  private static final String DATA_STREAM_NAME_FOLLOWSHIP_CHANGES = "followship_changes",
+    DATA_STREAM_NAME_CREATED_POSTS = "created_posts",
+    DATA_STREAM_NAME_FANNED_OUT_POSTS = "fanned_out_posts";
 
-  private static final class KafkaTopic {
-    private static final String EVENTS_FOLLOWSHIPS = "events.followships";
+  private static final String STATE_NAME_FOLLOWERS = "followers";
 
-    private static final String EVENTS_POSTS_CREATED = "events.posts.created";
-  }
+  private static final String SINK_NAME_FEEDS = "feeds";
 
   private record FollowshipChange(RowKind kind, int followerID, int followeeID) {}
 
@@ -139,59 +143,69 @@ public class FeedUpdater {
     // to deduplicate the change events and produce a normalized changelog stream.
     executionEnvironmentTableAPI.getConfig().set(ExecutionConfigOptions.TABLE_EXEC_SOURCE_CDC_EVENTS_DUPLICATE, true);
 
+    // Every function and operator in Flink can be stateful. Stateful functions store data across
+    // the processing of individual elements/events, making state a critical building block for any
+    // type of more elaborate operation.
+    // In order to make state fault tolerant, Flink needs to checkpoint the state. Checkpoints
+    // allow Flink to recover state and positions in the streams to give the application the same
+    // semantics as a failure-free execution.
+    // We'll configure checkpointing outside the Flink Job's code.
+    // final long checkpointInterval = Duration.ofSeconds(10).toMillis();
+    // executionEnvironment.enableCheckpointing(checkpointInterval);
+
     // Construct the followship changes source connector.
 
-    final Schema followshipSchema = Schema.newBuilder()
-      .column(ColumnName.ID, DataTypes.INT().notNull())
-      .column(ColumnName.FOLLOWER_ID, DataTypes.INT().notNull())
-      .column(ColumnName.FOLLOWEE_ID, DataTypes.INT().notNull())
+    final Schema followshipEntitySchema = Schema.newBuilder()
+      .column(COLUMN_NAME_ID, DataTypes.INT().notNull())
+      .column(COLUMN_NAME_FOLLOWER_ID, DataTypes.INT().notNull())
+      .column(COLUMN_NAME_FOLLOWEE_ID, DataTypes.INT().notNull())
       // Suppose user A follows, unfollows and then again follows user B. These events should be
       // processed in order on the same physical instance.
-      .primaryKey(ColumnName.FOLLOWER_ID, ColumnName.FOLLOWEE_ID)
+      .primaryKey(COLUMN_NAME_FOLLOWER_ID, COLUMN_NAME_FOLLOWEE_ID)
       .build();
 
     final DataStream<FollowshipChange> followshipChanges = executionEnvironmentTableAPI.toChangelogStream(
       executionEnvironmentTableAPI.from(
         createKafkaSource(
-          List.of(KafkaTopic.EVENTS_FOLLOWSHIPS),
-          followshipSchema
+          List.of(KAFKA_TOPIC_EVENTS_FOLLOWSHIPS),
+          followshipEntitySchema
         )
       )
     )
       .map(
         row -> new FollowshipChange(
           row.getKind(),
-          row.<Integer>getFieldAs(ColumnName.FOLLOWER_ID),
-          row.<Integer>getFieldAs(ColumnName.FOLLOWEE_ID)
+          row.<Integer>getFieldAs(COLUMN_NAME_FOLLOWER_ID),
+          row.<Integer>getFieldAs(COLUMN_NAME_FOLLOWEE_ID)
         )
       )
-      .name(DataStreamName.FOLLOWSHIP_CHANGES);
+      .name(DATA_STREAM_NAME_FOLLOWSHIP_CHANGES);
 
     // Construct the created post events source connector.
 
-    final Schema postSchema = Schema.newBuilder()
-      .column(ColumnName.ID, DataTypes.INT().notNull())
-      .column(ColumnName.AUTHOR_ID, DataTypes.INT().notNull())
-      .column(ColumnName.CREATED_AT, DataTypes.TIMESTAMP_LTZ(3))
-      .primaryKey(ColumnName.ID)
+    final Schema postEntitySchema = Schema.newBuilder()
+      .column(COLUMN_NAME_ID, DataTypes.INT().notNull())
+      .column(COLUMN_NAME_AUTHOR_ID, DataTypes.INT().notNull())
+      .column(COLUMN_NAME_CREATED_AT, DataTypes.TIMESTAMP_LTZ(3))
+      .primaryKey(COLUMN_NAME_ID)
       .build();
 
     final DataStream<CreatedPost> createdPosts = executionEnvironmentTableAPI.toChangelogStream(
       executionEnvironmentTableAPI.from(
         createKafkaSource(
-          List.of(KafkaTopic.EVENTS_POSTS_CREATED),
-          postSchema
+          List.of(KAFKA_TOPIC_EVENTS_POSTS_CREATED),
+          postEntitySchema
         )
       )
     )
       .map(
         row -> new CreatedPost(
-          row.<Integer>getFieldAs(ColumnName.ID),
-          row.<Integer>getFieldAs(ColumnName.AUTHOR_ID),
-          row.<Instant>getFieldAs(ColumnName.CREATED_AT)
+          row.<Integer>getFieldAs(COLUMN_NAME_ID),
+          row.<Integer>getFieldAs(COLUMN_NAME_AUTHOR_ID),
+          row.<Instant>getFieldAs(COLUMN_NAME_CREATED_AT)
         )
       )
-      .name(DataStreamName.CREATED_POSTS);
+      .name(DATA_STREAM_NAME_CREATED_POSTS);
 
     // Create the feeds sink connector.
 
@@ -243,13 +257,66 @@ public class FeedUpdater {
         holds either the first stream's type or the second stream's type.
       */
       .connect(createdPosts.keyBy(CreatedPost::authorID))
-      .process(ConnectedStreamsProcessor);
+      // For an author, the followee changes and new posts end up on the same physical instance.
+      // PostFanOuter is responsible for fanning out each post of the author to his / her followers.
+      .process(new PostFanOuter())
+      .name(DATA_STREAM_NAME_FANNED_OUT_POSTS)
+      .sinkTo(feedsSink)
+      .name(SINK_NAME_FEEDS);
 
     executionEnvironment.execute(JOB_NAME);
   }
 
-  // Processes the 2 connected streams : followship changes, and created posts.
-  private static class ConnectedStreamsProcessor {
+  /*
+    To realize low-level operations on two inputs, applications can use CoProcessFunction or
+    KeyedCoProcessFunction. This function is bound to two different inputs and gets individual
+    calls to processElement1(...) and processElement2(...) for records from the two different
+    inputs.
+  
+    Implementing a low level join typically follows this pattern:
+  
+      (1) Create a state object for one input (or both)
+      (2) Update the state upon receiving elements from its input
+      (3) Upon receiving elements from the other input, probe the state and produce the joined
+        result
+  
+    For example, you might be joining customer data to financial trades, while keeping state for
+    the customer data. If you care about having complete and deterministic joins in the face of
+    out-of-order events, you can use a timer to evaluate and emit the join for a trade when the
+    watermark for the customer data stream has passed the time of that trade.
+  */
+  private static class PostFanOuter
+    extends KeyedCoProcessFunction<Integer, FollowshipChange, CreatedPost, FeedEntity> {
+    // Further code will be explained with the context of an author A.
+
+    // Followers of A.
+    private transient MapState<Integer, Boolean> followers;
+
+    @Override
+    public void open(OpenContext openContext) throws Exception {
+      this.followers = getRuntimeContext().getMapState(
+        new MapStateDescriptor<>(STATE_NAME_FOLLOWERS, Types.INT, Types.BOOLEAN)
+      );
+    }
+
+    @Override
+    public void processElement1(FollowshipChange change, Context context, Collector<FeedEntity> out) throws Exception {
+      switch (change.kind()) {
+        case RowKind.DELETE:
+          followers.remove(change.followerID());
+          break;
+
+        default:
+          followers.put(change.followerID(), true);
+      }
+    }
+
+    @Override
+    public void processElement2(CreatedPost post, Context context, Collector<FeedEntity> out) throws Exception {
+      for (Integer followerID : followers.keys()) {
+        out.collect(new FeedEntity(followerID, post.postID(), post.authorID(), post.createdAt()));
+      }
+    }
   }
 
   // Returns a Kafka based source reading from the given topics.
