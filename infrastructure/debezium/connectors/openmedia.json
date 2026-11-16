@@ -1,0 +1,30 @@
+{
+	"connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+
+	"database.hostname": "postgres",
+	"database.port": "5432",
+	"database.user": "${env:POSTGRES_USER}",
+	"database.password": "${env:POSTGRES_PASSWORD}",
+	"database.dbname": "${env:POSTGRES_DB}",
+
+	"plugin.name": "pgoutput",
+
+	"publication.name": "openmedia",
+	"publication.autocreate.mode": "disabled",
+
+	"slot.name": "openmedia",
+
+	"skipped.operations": "t",
+	"tombstones.on.delete": "false",
+
+	"table.include.list": "public.users,public.profiles,public.followships,public.posts",
+	"column.exclude.list": "public.users.password",
+
+	"topic.prefix": "events",
+
+	"transforms": "route",
+	"transforms.route.type": "io.debezium.transforms.ContentBasedRouter",
+	"transforms.route.topic.regex": "events\\.public\\..*",
+	"transforms.route.language": "jsr223.groovy",
+	"transforms.route.topic.expression": "${directory:/kafka/config/transforms:route-topic.groovy}"
+}

@@ -1,15 +1,15 @@
-import { Entity, Index, PrimaryKey, Property } from "@mikro-orm/decorators/legacy"
+import { PrimaryKeyProp } from "@mikro-orm/core"
+import { Entity, Index, PrimaryKey } from "@mikro-orm/decorators/legacy"
 
 @Entity({ tableName: "followships" })
 export class FollowshipEntity {
-	@PrimaryKey()
-	id!: number
+	[PrimaryKeyProp]?: ["follower_id", "followee_id"]
 
 	@Index({ name: "followers_index" })
-	@Property({ fieldName: "follower_id", type: "integer" })
-	followerID: number
+	@PrimaryKey({ type: "integer" })
+	follower_id: number
 
 	@Index({ name: "followees_index" })
-	@Property({ fieldName: "followee_id", type: "integer" })
-	followeeID: number
+	@PrimaryKey({ type: "integer" })
+	followee_id: number
 }

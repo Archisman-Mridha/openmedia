@@ -8,30 +8,6 @@ local app = 'openmedia';
 
 local publishedTables = ['users', 'profiles', 'followships', 'posts'];
 
-local publicationForTable = function(tableName) {
-  apiVersion: 'postgresql.cnpg.io/v1',
-  kind: 'Publication',
-  metadata: {
-    name: std.format('%s-events', tableName),
-    namespace: app,
-  },
-  spec: {
-    cluster: {
-      name: app,
-    },
-    dbname: app,
-    name: std.format('%s_events', tableName),
-    target: {
-      objects: [{
-        table: {
-          schema: 'public',
-          name: tableName,
-        },
-      }],
-    },
-  },
-};
-
 local postgresCluster = CloudNativePG.newCluster(app, app) + {
   cluster+: {
     spec+: {
@@ -61,9 +37,31 @@ local postgresCluster = CloudNativePG.newCluster(app, app) + {
       generated from a table or a group of tables, and might also be described as a change set or
       replication set. Each publication exists in only one database.
   */
-  publications: {
-    [std.format('%sEvents', tableName)]: publicationForTable(tableName)
-    for tableName in publishedTables
+  publication: {
+    apiVersion: 'postgresql.cnpg.io/v1',
+    kind: 'Publication',
+    metadata: {
+      name: app,
+      namespace: app,
+    },
+    spec: {
+      cluster: {
+        name: app,
+      },
+      dbname: app,
+      name: app,
+      target: {
+        objects: [
+          {
+            table: {
+              schema: 'public',
+              name: tableName,
+            },
+          }
+          for tableName in publishedTables
+        ],
+      },
+    },
   },
 };
 

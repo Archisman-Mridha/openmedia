@@ -1,0 +1,128 @@
+/*
+  The Debezium PostgreSQL connector captures row-level changes in the schemas of a PostgreSQL
+  database.
+
+  PostgreSQL normally purges write-ahead log (WAL) segments after some period of time. This means
+  that the connector does not have the complete history of all changes that have been made to the
+  database. Therefore, the first time it connects to a PostgreSQL server or cluster, the connector
+  takes a consistent snapshot of all schemas. After that snapshot is complete, the connector
+  continuously captures row-level changes that insert, update, and delete database content and that
+  were committed to a PostgreSQL database. The connector generates data change event records and
+  streams them to Kafka topics. For each table, the default behavior is that the connector streams
+  all generated events to a separate Kafka topic for that table. Applications and services consume
+  data change event records from that topic.
+
+  PostgreSQL’s logical decoding feature was introduced in version 9.4. It is a mechanism that
+  allows the extraction of the changes that were committed to the transaction log and the
+  processing of these changes in a user-friendly manner with the help of an output plug-in. The
+  output plug-in enables clients to consume the changes.
+
+  The PostgreSQL connector contains two main parts that work together to read and process database
+  changes:
+
+    (1) A logical decoding output plug-in :
+
+      We'll be using pgoutput : The standard logical decoding output plug-in in PostgreSQL 10+. It
+      is maintained by the PostgreSQL community, and used by PostgreSQL itself for logical
+      replication. This plug-in is always present so no additional libraries need to be installed.
+      The Debezium connector interprets the raw replication event stream directly into change
+      events.
+
+    (2) Java code : The Kafka Connect connector that reads the changes produced by the chosen
+      logical decoding output plug-in.
+
+  The connector is tolerant of failures. As the connector reads changes and produces events, it
+  records the WAL position for each event. If the connector stops for any reason (including
+  communication failures, network problems, or crashes), upon restart the connector continues
+  reading the WAL where it last left off. This includes snapshots. If the connector stops during a
+  snapshot, the connector begins a new snapshot when it restarts.
+*/
+{
+	"connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+
+	"database.hostname": "postgres",
+	"database.port": "5432",
+	"database.user": "${env:POSTGRES_USER}",
+	"database.password": "${env:POSTGRES_PASSWORD}",
+	"database.dbname": "${env:POSTGRES_DB}",
+
+	/*
+    Changesets are created from the WAL using the logical decoding output plugin (pgoutput in this
+    case).
+
+    The publication decides which changesets to keep.
+
+    And the logical replication slot keeps track of which changesets have been read.
+  */
+
+	"plugin.name": "pgoutput",
+
+	"publication.name": "openmedia",
+	"publication.autocreate.mode": "disabled",
+
+	// By default, when the Debezium PostgreSQL connector starts, if the configured replication slot
+	// does not exist, the connector creates it automatically.
+	// If you prefer more control over the replication slot setup, particularly in production
+	// environments, you can create the replication slot manually before starting the connector.
+	"slot.name": "openmedia",
+
+	"skipped.operations": "t",
+	"tombstones.on.delete": "false",
+
+	"table.include.list": "public.users,public.profiles,public.followships,public.posts",
+	"column.exclude.list": "public.users.password",
+
+	// By default, the PostgreSQL connector writes change events for all INSERT, UPDATE, and DELETE
+	// operations that occur in a table to a single Apache Kafka topic that is specific to that table.
+	// The connector uses the following convention to name change event topics:
+	// topicPrefix.schemaName.tableName.
+
+	// Topic prefix that provides a namespace for the particular PostgreSQL database server or
+	// cluster in which Debezium is capturing changes. The prefix should be unique across all other
+	// connectors, since it is used as a topic name prefix for all Kafka topics that receive records
+	// from this connector.
+	"topic.prefix": "events",
+
+	// Connectors can be configured with transformations to make lightweight per message
+	// modifications. Debezium provides several single message transformations (SMTs) that you can
+	// use to either modify records before they are sent to Apache Kafka (by applying them to the
+	// Debezium connectors), or when they are read from Kafka by a sink connector. Also Debezium
+	// Server supports the usage of SMTs.
+	"transforms": "route",
+
+	/*
+    By default, Debezium streams all of the change events that it reads from a table to a single
+    static topic. However, there might be situations in which you might want to reroute selected
+    events to other topics, based on the event content. The process of routing messages based on
+    their content is described in the Content-based routing messaging pattern. To apply this
+    pattern in Debezium, you use the content-based routing single message transform (SMT) to write
+    expressions that are evaluated for each event. Depending how an event is evaluated, the SMT
+    either routes the event message to the original destination topic, or reroutes it to the topic
+    that you specify in the expression.
+
+    For security reasons, the content-based routing SMT is not included with the Debezium connector
+    archives. Instead, it is provided in a separate artifact, debezium-scripting-3.7.1.Final.tar.gz.
+
+    To use the content-based routing SMT with a Debezium connector plug-in, you must explicitly add
+    the SMT artifact to your Kafka Connect environment.
+  */
+	"transforms.route.type": "io.debezium.transforms.ContentBasedRouter",
+	// In addition to the change event messages that a Debezium connector emits when a database change
+	// occurs, the connector also emits other types of messages, including heartbeat messages, and
+	// metadata messages about schema changes and transactions. Because the structure of these other
+	// messages differs from the structure of the change event messages that the SMT is designed to
+	// process, it’s best to configure the connector to selectively apply the SMT, so that it
+	// processes only the intended data change messages.
+	"transforms.route.topic.regex": "events\\.public\\..*",
+	/*
+    The content-based routing SMT supports scripting languages that integrate with JSR 223
+    (Scripting for the Java™ Platform).
+
+    Debezium does not come with any implementations of the JSR 223 API. To use an expression
+    language with Debezium, you must download the JSR 223 script engine implementation for the
+    language. For example, for Groovy 3, you can download its JSR 223 implementation from
+    https://groovy-lang.org/.
+  */
+	"transforms.route.language": "jsr223.groovy",
+	"transforms.route.topic.expression": "${directory:/kafka/config/transforms:route-topic.groovy}"
+}

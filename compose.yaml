@@ -57,50 +57,41 @@ services:
         - "CMD-SHELL"
         - "wget -qO- http://127.0.0.1:7700/health"
 
-  redpanda:
-    image: redpandadata/redpanda:latest
+  # This Docker image runs a GraalVM based native Kafka broker. GraalVM provides ahead-of-time
+  # Native Image compilation of the broker running in KRaft combined mode by default (i.e., it
+  # serves as both broker and KRaft controller) into a native binary executable
+  #
+  # It's important to note that if you are overriding any configuration, then none of the default
+  # configurations will be used. 
+  kafka:
+    image: apache/kafka:4.2.0
     environment:
-      KAFKA_USERNAME: ${KAFKA_USERNAME}
-      KAFKA_PASSWORD: ${KAFKA_PASSWORD}
-    entrypoint:
-      - bash
-      - -c
-    command:
-      - |
-        rpk redpanda start \
-          --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:19092 \
-          --advertise-kafka-addr internal://redpanda:9092,external://localhost:19092 \
-          --pandaproxy-addr internal://0.0.0.0:8082,external://0.0.0.0:18082 \
-          --advertise-pandaproxy-addr internal://redpanda:8082,external://localhost:18082 \
-          --schema-registry-addr internal://0.0.0.0:8081,external://0.0.0.0:18081 \
-          --rpc-addr redpanda:33145 \
-          --advertise-rpc-addr redpanda:33145 \
-          --mode dev-container \
-          --set redpanda.enable_sasl=true \
-          --set "redpanda.superusers=[\"$KAFKA_USERNAME\"]" \
-          --default-log-level=warn &
-        until rpk cluster health 2>/dev/null | grep -q 'Healthy:.*true'; do sleep 1; done
-        rpk acl user create "$KAFKA_USERNAME" --password "$KAFKA_PASSWORD" --mechanism scram-sha-256
-        wait
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: INTERNAL://:9092,EXTERNAL://:19092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,EXTERNAL://localhost:19092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:SASL_PLAINTEXT,EXTERNAL:SASL_PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_SASL_ENABLED_MECHANISMS: PLAIN
+      KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
+      KAFKA_LISTENER_NAME_INTERNAL_PLAIN_SASL_JAAS_CONFIG: "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"${KAFKA_USERNAME}\" password=\"${KAFKA_PASSWORD}\" user_${KAFKA_USERNAME}=\"${KAFKA_PASSWORD}\";"
+      KAFKA_LISTENER_NAME_EXTERNAL_PLAIN_SASL_JAAS_CONFIG: "org.apache.kafka.common.security.plain.PlainLoginModule required user_${KAFKA_USERNAME}=\"${KAFKA_PASSWORD}\";"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
     ports:
       - "19092:19092"
-      - "18082:18082"
-      - "18081:18081"
-      - "9644:9644"
-    healthcheck:
-      test:
-        - "CMD-SHELL"
-        - "rpk cluster health | grep -E 'Healthy:.+true' || exit 1"
 
-  openobserve:
-    image: public.ecr.aws/zinclabs/openobserve:latest
+  debezium:
+    image: quay.io/debezium/connect:3.7.1.Final
     environment:
-      ZO_ROOT_USER_EMAIL: ${OPENOBSERVE_EMAIL}
-      ZO_ROOT_USER_PASSWORD: ${OPENOBSERVE_PASSWORD}
+    depends_on:
+      kafka:
+        condition: service_healthy
+      atlasgo:
+        condition: service_completed_successfully
     ports:
-      - "5080:5080"
-      - "5081:5081"
-    healthcheck:
-      test:
-        - "CMD-SHELL"
-        - "wget -qO- http://127.0.0.1:5080/healthz"
+      - "8083:8083"

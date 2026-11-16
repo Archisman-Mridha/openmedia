@@ -3,5 +3,5 @@ export enum KafkaTopic {
 
 	EVENTS_PROFILES_CREATED = "events.profiles.created",
 
-	EVENTS_FOLLOWSHIPS_DELETED = "events.followships.deleted"
+	EVENTS_FOLLOWSHIPS = "events.followships"
 }

@@ -119,6 +119,7 @@ async function main() {
 			},
 
 			producer: {
+				allowAutoTopicCreation: isDevelopmentEnvironment,
 				createPartitioner: Partitioners.DefaultPartitioner
 			}
 		}

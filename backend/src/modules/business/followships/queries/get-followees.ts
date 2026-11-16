@@ -25,8 +25,8 @@ export class GetFolloweesHandler implements IQueryHandler<GetFolloweesQuery> {
 
 	async execute({ input }: GetFolloweesQuery): Promise<GetFolloweesOutput> {
 		const cursor = await this.followshipsRepository.findByCursor({
-			where: { followerID: input.followerID },
-			orderBy: { id: "desc" },
+			where: { follower_id: input.followerID },
+			orderBy: { followee_id: "desc" },
 
 			first: input.first,
 			after: input.after,
@@ -37,7 +37,7 @@ export class GetFolloweesHandler implements IQueryHandler<GetFolloweesQuery> {
 		return {
 			edges: cursor.items.map((followship) => ({
 				cursor: cursor.from(followship),
-				node: followship.followeeID
+				node: followship.followee_id
 			})),
 			pageInfo: {
 				startCursor: cursor.startCursor,

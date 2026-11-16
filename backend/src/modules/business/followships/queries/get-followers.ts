@@ -5,7 +5,7 @@ import { IConnection, PaginatedInput } from "@openmedia/backend/utils/pagination
 import { FollowshipEntity } from "../entity"
 
 export interface GetFollowersInput extends PaginatedInput {
-	followeeID: number
+	followee_id: number
 }
 
 export interface GetFollowersOutput extends IConnection<number> {}
@@ -25,8 +25,8 @@ export class GetFollowersHandler implements IQueryHandler<GetFollowersQuery> {
 
 	async execute({ input }: GetFollowersQuery): Promise<GetFollowersOutput> {
 		const cursor = await this.followshipsRepository.findByCursor({
-			where: { followeeID: input.followeeID },
-			orderBy: { id: "desc" },
+			where: { followee_id: input.followee_id },
+			orderBy: { follower_id: "desc" },
 
 			first: input.first,
 			after: input.after,
@@ -37,7 +37,7 @@ export class GetFollowersHandler implements IQueryHandler<GetFollowersQuery> {
 		return {
 			edges: cursor.items.map((followship) => ({
 				cursor: cursor.from(followship),
-				node: followship.followerID
+				node: followship.follower_id
 			})),
 			pageInfo: {
 				startCursor: cursor.startCursor,

@@ -24,12 +24,10 @@ CREATE TABLE profiles (
 );
 
 CREATE TABLE followships (
-  id SERIAL,
-
   follower_id INTEGER NOT NULL,
   followee_id INTEGER NOT NULL,
 
-  UNIQUE (follower_id, followee_id)
+  PRIMARY KEY (follower_id, followee_id)
 );
 
 -- If you are using Debezium Connector for PostgreSQL to capture the changes to Kafka, please make

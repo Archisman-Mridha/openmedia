@@ -41,7 +41,7 @@ local newCluster = function(clusterName, namespace, connectionPoolingEnabled=fal
           // are allowed to retain in the pg_wal directory at checkpoint time. By default, in
           // PostgreSQL max_slot_wal_keep_size is set to -1, meaning that replication slots may
           // retain an unlimited amount of WAL files.
-          max_slot_wal_keep_size: '10GB',
+          // max_slot_wal_keep_size: '10GB',
 
           // Enable audit logging using pgAudit.
 

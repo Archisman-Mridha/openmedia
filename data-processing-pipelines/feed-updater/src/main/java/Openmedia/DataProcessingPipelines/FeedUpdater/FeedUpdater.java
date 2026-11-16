@@ -1,7 +1,6 @@
 package Openmedia.DataProcessingPipelines.FeedUpdater;
 
 import java.sql.Timestamp;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -156,7 +155,6 @@ public class FeedUpdater {
     // Construct the followship changes source connector.
 
     final Schema followshipEntitySchema = Schema.newBuilder()
-      .column(COLUMN_NAME_ID, DataTypes.INT().notNull())
       .column(COLUMN_NAME_FOLLOWER_ID, DataTypes.INT().notNull())
       .column(COLUMN_NAME_FOLLOWEE_ID, DataTypes.INT().notNull())
       // Suppose user A follows, unfollows and then again follows user B. These events should be
