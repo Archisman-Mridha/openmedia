@@ -12,25 +12,19 @@ export namespace CDC {
 	export type Event<Row> = CreatedEvent<Row> | UpdatedEvent<Row> | DeletedEvent<Row>
 
 	export class CreatedEvent<Row> {
-		payload: {
-			op: Operation.Create
-			after: Row
-		}
+		op: Operation.Create
+		after: Row
 	}
 
 	export class UpdatedEvent<Row> {
-		payload: {
-			op: Operation.Update
-			before: Row
-			after: Row
-		}
+		op: Operation.Update
+		before: Row
+		after: Row
 	}
 
 	export class DeletedEvent<Row> {
-		payload: {
-			op: Operation.Delete
-			before: Row
-		}
+		op: Operation.Delete
+		before: Row
 	}
 }
 

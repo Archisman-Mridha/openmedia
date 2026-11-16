@@ -23,8 +23,8 @@ export class FollowshipExistsHandler implements IQueryHandler<FollowshipExistsQu
 
 	async execute({ input }: FollowshipExistsQuery): Promise<boolean> {
 		const count = await this.followshipsRepository.count({
-			followerID: input.followerID,
-			followeeID: input.followeeID
+			follower_id: input.followerID,
+			followee_id: input.followeeID
 		})
 		return count > 0
 	}

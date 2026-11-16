@@ -3,6 +3,8 @@ name: openmedia
 networks:
   openmedia: {}
 
+x-kafka-client-jaas-config: &kafka-client-jaas-config "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"${KAFKA_USERNAME}\" password=\"${KAFKA_PASSWORD}\";"
+
 services:
   postgres:
     image: postgres:17-alpine
@@ -14,6 +16,13 @@ services:
       - "postgres"
       - "-c"
       - "wal_level=logical"
+      # Required by the exactly-once JDBC sink of the Flink jobs, which commits using XA (two-phase)
+      # transactions.
+      - "-c"
+      - "max_prepared_transactions=100"
+    configs:
+      - source: postgres-publications-and-slots
+        target: /docker-entrypoint-initdb.d/postgres-publications-and-slots.sql
     hostname: postgres
     ports:
       - "5432:5432"
@@ -64,7 +73,7 @@ services:
   # It's important to note that if you are overriding any configuration, then none of the default
   # configurations will be used. 
   kafka:
-    image: apache/kafka:4.2.0
+    image: apache/kafka-native:4.4.0
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
@@ -84,10 +93,72 @@ services:
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
     ports:
       - "19092:19092"
+    healthcheck:
+      test:
+        - "CMD-SHELL"
+        - "bash -c '</dev/tcp/localhost/9092'"
 
   debezium:
     image: quay.io/debezium/connect:3.7.1.Final
     environment:
+      # Set this to an ID that uniquely identifies the Kafka Connect cluster the service and its
+      # workers belong to.
+      GROUP_ID: debezium
+      # Set the name of the Kafka topics where the Kafka Connect services in the group store
+      # connector configurations, offsets and statuses. The topics must have a single partition,
+      # should be highly replicated (e.g., 3x or more) and should be configured for compaction.
+      CONFIG_STORAGE_TOPIC: debezium.configs
+      OFFSET_STORAGE_TOPIC: debezium.offsets
+      STATUS_STORAGE_TOPIC: debezium.statuses
+      # Set this to a list of host/port pairs to use for establishing the initial connection to the
+      # Kafka cluster. Once a connection is established to one of these brokers, the service will
+      # then discover and make use of all Kafka brokers in the cluster, regardless of which servers
+      # are specified here for bootstrapping.
+      # We recommend that you include more than one broker in this list, in case one of those is
+      # down.
+      BOOTSTRAP_SERVERS: kafka:9092
+
+      CONNECT_SECURITY_PROTOCOL: SASL_PLAINTEXT
+      CONNECT_SASL_MECHANISM: PLAIN
+      CONNECT_SASL_JAAS_CONFIG: *kafka-client-jaas-config
+      CONNECT_PRODUCER_SECURITY_PROTOCOL: SASL_PLAINTEXT
+      CONNECT_PRODUCER_SASL_MECHANISM: PLAIN
+      CONNECT_PRODUCER_SASL_JAAS_CONFIG: *kafka-client-jaas-config
+
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+
+      # Lets connector configs read values from environment variables and files
+      CONNECT_CONFIG_PROVIDERS: env,directory
+      CONNECT_CONFIG_PROVIDERS_ENV_CLASS: org.apache.kafka.common.config.provider.EnvVarConfigProvider
+      CONNECT_CONFIG_PROVIDERS_DIRECTORY_CLASS: org.apache.kafka.common.config.provider.DirectoryConfigProvider
+
+      # Enables the content-based routing SMT used by the connectors.
+      ENABLE_DEBEZIUM_SCRIPTING: "true"
+      GROOVY_VERSION: 4.0.33
+    entrypoint:
+      - "/bin/bash"
+      - "-c"
+    command:
+      - |
+        # Download the JSR 223 script engine implementation.
+        cd /kafka/external_libs/debezium-scripting
+        for artifact in groovy groovy-jsr223; do
+          curl -fsSLO "https://repo1.maven.org/maven2/org/apache/groovy/$$artifact/$$GROOVY_VERSION/$$artifact-$$GROOVY_VERSION.jar" || exit 1
+        done
+
+        # Create Debezium connectors.
+        /docker-entrypoint.sh start &
+        until curl -fs http://localhost:8083/connectors > /dev/null; do sleep 2; done
+        for connector in /connectors/*.json; do
+          curl -fsS -X PUT -H "Content-Type: application/json" --data @"$$connector" \
+            "http://localhost:8083/connectors/$$(basename "$$connector" .json)/config" || exit 1
+        done
+        wait
+    volumes:
+      - ./infrastructure/debezium/connectors:/connectors:ro
+      - ./infrastructure/debezium/transforms:/kafka/config/transforms:ro
     depends_on:
       kafka:
         condition: service_healthy
@@ -95,3 +166,73 @@ services:
         condition: service_completed_successfully
     ports:
       - "8083:8083"
+    healthcheck:
+      test:
+        - "CMD-SHELL"
+        - "curl -fs http://localhost:8083/connectors"
+
+  flink-job-jars-builder:
+    image: gradle:8.14.4-jdk21
+    working_dir: /data-processing-pipelines
+    command:
+      - "gradle"
+      - "--no-daemon"
+      - ":feed-updater:shadowJar"
+    volumes:
+      - ./data-processing-pipelines:/data-processing-pipelines
+      - gradle-cache:/home/gradle/.gradle
+
+  # This is a standalone Flink cluster running all components of Apache Flink.
+  flink:
+    image: flink:2.2.1-java21
+    environment:
+      FLINK_PROPERTIES: |
+        taskmanager.numberOfTaskSlots: 4
+
+        # Kafka topics get auto-created when Debezium first writes to them. Until then, the jobs
+        # reading them fail to start. So, keep restarting failed jobs.
+        restart-strategy.type: fixed-delay
+        restart-strategy.fixed-delay.attempts: 2147483647
+        restart-strategy.fixed-delay.delay: 10s
+
+        # The exactly-once JDBC sink commits on checkpoints.
+        execution.checkpointing.interval: 10s
+
+      KAFKA_BROKER_ADDRESSES: kafka:9092
+      KAFKA_USERNAME: ${KAFKA_USERNAME}
+      KAFKA_PASSWORD: ${KAFKA_PASSWORD}
+
+      POSTGRES_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    entrypoint:
+      - "/bin/bash"
+      - "-c"
+    command:
+      - |
+        /docker-entrypoint.sh jobmanager &
+        until /opt/flink/bin/flink list > /dev/null 2>&1; do sleep 2; done
+        /opt/flink/bin/taskmanager.sh start-foreground &
+
+        for job in /jobs/*.jar; do
+          /opt/flink/bin/flink run --detached "$$job" || exit 1
+        done
+        wait
+    volumes:
+      - ./data-processing-pipelines/feed-updater/build/libs/feed-updater-0.1-SNAPSHOT-all.jar:/jobs/feed-updater.jar:ro
+    depends_on:
+      debezium:
+        condition: service_healthy
+      flink-job-jars-builder:
+        condition: service_completed_successfully
+    ports:
+      - "8081:8081"
+
+volumes:
+  gradle-cache: {}
+
+configs:
+  postgres-publications-and-slots:
+    content: |
+      CREATE PUBLICATION openmedia FOR TABLES IN SCHEMA public;
+      SELECT pg_create_logical_replication_slot('openmedia', 'pgoutput');

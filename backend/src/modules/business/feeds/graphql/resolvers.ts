@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common"
 import { QueryBus } from "@nestjs/cqrs"
-import { Args, Query, Resolver } from "@nestjs/graphql"
+import { Query, Resolver } from "@nestjs/graphql"
+import { Args } from "@openmedia/backend/decorators/args"
 import { CurrentUser } from "@openmedia/backend/decorators/current-user"
 import { UserEntity } from "@openmedia/backend/modules/business/users/entity"
 import { PostsConnection } from "../../posts/graphql/models"

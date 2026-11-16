@@ -6,10 +6,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.flink.api.common.functions.OpenContext;
-import org.apache.flink.api.common.state.v2.MapState;
-import org.apache.flink.api.common.state.v2.MapStateDescriptor;
+import org.apache.flink.api.common.state.MapState;
+import org.apache.flink.api.common.state.MapStateDescriptor;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.connector.jdbc.JdbcExactlyOnceOptions;
+import org.apache.flink.connector.jdbc.JdbcExecutionOptions;
 import org.apache.flink.connector.jdbc.core.datastream.sink.JdbcSink;
 import org.apache.flink.formats.json.debezium.DebeziumJsonFormatOptions;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -220,10 +221,13 @@ public class FeedUpdater {
           statement.setTimestamp(4, Timestamp.from(feed.postCreatedAt()));
         }
       )
+      .withExecutionOptions(JdbcExecutionOptions.builder().withMaxRetries(0).build())
       // Since 1.13, Flink JDBC sink supports exactly-once mode. The implementation relies on the
       // JDBC driver support of XA standard.
       .buildExactlyOnce(
-        JdbcExactlyOnceOptions.defaults(),
+        // Some databases only allow a single XA transaction per connection (e.g. PostgreSQL,
+        // MySQL).
+        JdbcExactlyOnceOptions.builder().withTransactionPerConnection(true).build(),
         () -> {
           final PGXADataSource dataSource = new PGXADataSource();
           dataSource.setUrl(getRequiredEnv("POSTGRES_URL"));
@@ -359,7 +363,7 @@ public class FeedUpdater {
       // exist any more on the server (e.g. because that data has been deleted).
       ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"
     );
-    moreKafkaClientOptions.forEach((option, value) -> kafkaSourceBuilder.option(option, value));
+    moreKafkaClientOptions.forEach((option, value) -> kafkaSourceBuilder.option("properties." + option, value));
 
     final TableDescriptor kafkaSource = kafkaSourceBuilder.schema(schema).build();
     return kafkaSource;

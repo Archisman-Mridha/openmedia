@@ -22,7 +22,10 @@ export class CreateFollowshipHandler implements ICommandHandler<CreateFollowship
 	) {}
 
 	async execute({ input }: CreateFollowshipCommand): Promise<void> {
-		this.followshipsRepository.create(input)
+		this.followshipsRepository.create({
+			follower_id: input.followerID,
+			followee_id: input.followeeID
+		})
 		await this.followshipsRepository.getEntityManager().flush()
 	}
 }

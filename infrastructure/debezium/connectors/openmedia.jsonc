@@ -72,6 +72,9 @@
 	"table.include.list": "public.users,public.profiles,public.followships,public.posts",
 	"column.exclude.list": "public.users.password",
 
+	"value.converter": "org.apache.kafka.connect.json.JsonConverter",
+	"value.converter.schemas.enable": "false",
+
 	// By default, the PostgreSQL connector writes change events for all INSERT, UPDATE, and DELETE
 	// operations that occur in a table to a single Apache Kafka topic that is specific to that table.
 	// The connector uses the following convention to name change event topics:

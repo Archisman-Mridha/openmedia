@@ -12,11 +12,11 @@ export class EventsController {
 
 	@EventPattern(KafkaTopic.EVENTS_USERS_CREATED)
 	async onUserCreated(@Payload() event: UserCreatedEvent): Promise<void> {
-		await this.commandBus.execute(new CreateProfileCommand(event.payload.after))
+		await this.commandBus.execute(new CreateProfileCommand(event.after))
 	}
 
 	@EventPattern(KafkaTopic.EVENTS_PROFILES_CREATED)
 	async onProfileCreated(@Payload() event: ProfileCreatedEvent): Promise<void> {
-		await this.commandBus.execute(new IndexProfileCommand(event.payload.after))
+		await this.commandBus.execute(new IndexProfileCommand(event.after))
 	}
 }

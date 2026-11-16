@@ -22,6 +22,9 @@ export class DeleteFollowshipHandler implements ICommandHandler<DeleteFollowship
 	) {}
 
 	async execute({ input }: DeleteFollowshipCommand): Promise<void> {
-		await this.followshipsRepository.nativeDelete(input)
+		await this.followshipsRepository.nativeDelete({
+			follower_id: input.followerID,
+			followee_id: input.followeeID
+		})
 	}
 }

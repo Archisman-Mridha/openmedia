@@ -27,8 +27,8 @@ export class GetFollowshipCountsHandler implements IQueryHandler<GetFollowshipCo
 
 	async execute({ input }: GetFollowshipCountsQuery): Promise<GetFollowshipCountsOutput> {
 		const [followerCount, followeeCount] = await Promise.all([
-			this.followshipsRepository.count({ followeeID: input.profileID }),
-			this.followshipsRepository.count({ followerID: input.profileID })
+			this.followshipsRepository.count({ followee_id: input.profileID }),
+			this.followshipsRepository.count({ follower_id: input.profileID })
 		])
 
 		return { followerCount, followeeCount }

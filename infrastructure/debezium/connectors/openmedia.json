@@ -20,6 +20,9 @@
 	"table.include.list": "public.users,public.profiles,public.followships,public.posts",
 	"column.exclude.list": "public.users.password",
 
+	"value.converter": "org.apache.kafka.connect.json.JsonConverter",
+	"value.converter.schemas.enable": "false",
+
 	"topic.prefix": "events",
 
 	"transforms": "route",

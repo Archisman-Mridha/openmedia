@@ -11,9 +11,9 @@ export class EventsController {
 
 	@EventPattern(KafkaTopic.EVENTS_FOLLOWSHIPS)
 	async onFollowshipEvent(@Payload() event: FollowshipEvent): Promise<void> {
-		switch (event.payload.op) {
+		switch (event.op) {
 			case CDC.Operation.Delete: {
-				const { follower_id, followee_id } = event.payload.before
+				const { follower_id, followee_id } = event.before
 
 				await this.commandBus.execute(
 					new RemovePostsOfUserCommand({ consumerID: follower_id, postAuthorID: followee_id })
