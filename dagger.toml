@@ -1,0 +1,13 @@
+[modules.go-sdk]
+source = "dagger.io/sdk/go"
+
+[sdks.go]
+module = "go-sdk"
+
+[modules.ci]
+main = true
+source = ".dagger/modules/ci"
+
+[sdks.go.scopes.".dagger/modules/ci"]
+is-module = true
+name = "ci"

@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  check:
+    name: Dagger checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      # Runs every check of the workspace's Dagger modules (see dagger.toml), in parallel.
+      - uses: dagger/dagger-for-github@v8.4.1
+        with:
+          version: v1.0.0-beta.27
+          verb: check

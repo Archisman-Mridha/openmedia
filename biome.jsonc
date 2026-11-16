@@ -50,5 +50,18 @@
 		"parser": {
 			"allowComments": true
 		}
-	}
+	},
+
+	"overrides": [
+		{
+			"includes": ["backend/**"],
+			"linter": {
+				"rules": {
+					"correctness": {
+						"useHookAtTopLevel": "off"
+					}
+				}
+			}
+		}
+	]
 }

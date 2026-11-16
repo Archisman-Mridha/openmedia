@@ -1,7 +1,7 @@
 {
 	"name": "validators",
 	"$schema": "../../node_modules/nx/schemas/project-schema.json",
-	"sourceRoot": "validators/src",
+	"sourceRoot": "packages/validators/src",
 	"projectType": "library",
 	"targets": {
 		"build": {
@@ -9,9 +9,9 @@
 			"outputs": ["{options.outputPath}"],
 			"options": {
 				"outputPath": "dist/validators",
-				"main": "validators/src/index.ts",
-				"tsConfig": "validators/tsconfig.lib.json",
-				"assets": ["validators/*.md"]
+				"main": "packages/validators/src/index.ts",
+				"tsConfig": "packages/validators/tsconfig.lib.json",
+				"assets": ["packages/validators/*.md"]
 			}
 		}
 	},
